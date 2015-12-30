@@ -189,8 +189,8 @@ const CGFloat kDesignHeight = 299.0;
 
 - (ASLayoutSpec *)layoutSpecThatFits:(ASSizeRange)constrainedSize {
   CGFloat kInsetHorizontal = 16.0;
-  CGFloat kInsetTop = 10.0;
-  CGFloat kInsetBottom = 8.0;
+  CGFloat kInsetTop = 6.0;
+  CGFloat kInsetBottom = 0.0;
   
   UIEdgeInsets textInsets = UIEdgeInsetsMake(kInsetTop, kInsetHorizontal, kInsetBottom, kInsetHorizontal);
   
@@ -204,14 +204,10 @@ const CGFloat kDesignHeight = 299.0;
   horizontalSpacer2.flexGrow = YES;
   
   ASStackLayoutSpec *info1Stack = [ASStackLayoutSpec stackLayoutSpecWithDirection:ASStackLayoutDirectionHorizontal spacing:1.0 justifyContent:ASStackLayoutJustifyContentStart alignItems:ASStackLayoutAlignItemsStretch children:@[self.firstInfoLabel, self.distanceLabel, horizontalSpacer1, self.originalPriceLabel]];
-  info1Stack.alignItems = ASStackLayoutAlignItemsStretch;
   
-  ASStackLayoutSpec *info2Stack = [ASStackLayoutSpec stackLayoutSpecWithDirection:ASStackLayoutDirectionHorizontal spacing:0.0 justifyContent:ASStackLayoutJustifyContentStart alignItems:ASStackLayoutAlignItemsStretch children:@[self.secondInfoLabel, horizontalSpacer2, self.finalPriceLabel]];
-  info2Stack.alignItems = ASStackLayoutAlignItemsStretch;
+  ASStackLayoutSpec *info2Stack = [ASStackLayoutSpec stackLayoutSpecWithDirection:ASStackLayoutDirectionHorizontal spacing:0.0 justifyContent:ASStackLayoutJustifyContentCenter alignItems:ASStackLayoutAlignItemsStretch children:@[self.secondInfoLabel, horizontalSpacer2, self.finalPriceLabel]];
   
   ASStackLayoutSpec *textStack = [ASStackLayoutSpec stackLayoutSpecWithDirection:ASStackLayoutDirectionVertical spacing:0.0 justifyContent:ASStackLayoutJustifyContentStart alignItems:ASStackLayoutAlignItemsStretch children:@[self.titleLabel, verticalSpacer, info1Stack, info2Stack]];
-  textStack.alignItems = ASStackLayoutAlignItemsStretch;
-  textStack.flexGrow = YES;
   
   ASInsetLayoutSpec *textWrapper = [ASInsetLayoutSpec insetLayoutSpecWithInsets:textInsets child:textStack];
   textWrapper.flexGrow = YES;
