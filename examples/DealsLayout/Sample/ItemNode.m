@@ -88,6 +88,7 @@ const CGFloat kDesignHeight = 299.0;
   [self addSubnode:self.secondInfoLabel];
   [self addSubnode:self.originalPriceLabel];
   [self addSubnode:self.finalPriceLabel];
+  [self addSubnode:self.distanceLabel];
   
   self.soldOutOverlay = [[ASDisplayNode alloc] init];
   self.soldOutOverlay.backgroundColor = [UIColor clearColor];
