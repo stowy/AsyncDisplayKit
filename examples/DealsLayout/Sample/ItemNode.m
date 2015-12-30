@@ -30,7 +30,6 @@ const CGFloat kDesignHeight = 299.0;
 @property (nonatomic, strong) ASTextNode *finalPriceLabel;
 @property (nonatomic, strong) ASTextNode *soldOutLabelFlat;
 @property (nonatomic, strong) ASDisplayNode *soldOutLabelBackground;
-@property (nonatomic, strong) ASDisplayNode *soldOutOverlayTop;
 @property (nonatomic, strong) ASDisplayNode *soldOutOverlay;
 
 @end
@@ -80,9 +79,9 @@ const CGFloat kDesignHeight = 299.0;
   self.soldOutLabelBackground.backgroundColor = [[UIColor whiteColor] colorWithAlphaComponent:0.9];
   self.soldOutLabelBackground.flexGrow = YES;
   
-  self.soldOutOverlayTop = [[ASDisplayNode alloc] init];
-  self.soldOutOverlayTop.flexGrow = YES;
-  self.soldOutOverlayTop.backgroundColor = [[UIColor whiteColor] colorWithAlphaComponent:0.5];
+  self.soldOutOverlay = [[ASDisplayNode alloc] init];
+  self.soldOutOverlay.flexGrow = YES;
+  self.soldOutOverlay.backgroundColor = [[UIColor whiteColor] colorWithAlphaComponent:0.5];
   
   [self addSubnode:self.dealImageView];
   [self addSubnode:self.titleLabel];
@@ -92,12 +91,13 @@ const CGFloat kDesignHeight = 299.0;
   [self addSubnode:self.finalPriceLabel];
   [self addSubnode:self.distanceLabel];
   
-  self.soldOutOverlay = [[ASDisplayNode alloc] init];
-  self.soldOutOverlay.backgroundColor = [UIColor clearColor];
-  [self.soldOutOverlay addSubnode:self.soldOutLabelBackground];
-  [self.soldOutOverlay addSubnode:self.soldOutLabelFlat];
-  [self.soldOutOverlay addSubnode:self.soldOutOverlayTop];
+  [self addSubnode:self.soldOutLabelBackground];
+  [self addSubnode:self.soldOutLabelFlat];
+  [self addSubnode:self.soldOutOverlay];
   self.soldOutOverlay.hidden = YES;
+  self.soldOutLabelBackground.hidden = YES;
+  self.soldOutLabelFlat.hidden = YES;
+  
   [self addSubnode:self.soldOutOverlay];
   
   BOOL isRTL = NO;
@@ -146,6 +146,8 @@ const CGFloat kDesignHeight = 299.0;
     self.soldOutLabelFlat.attributedString = [[NSAttributedString alloc] initWithString:soldOutText attributes:[ItemStyles soldOutStyle]];
   }
   self.soldOutOverlay.hidden = !isSoldOut;
+  self.soldOutLabelFlat.hidden = !isSoldOut;
+  self.soldOutLabelBackground.hidden = !isSoldOut;
 }
 
 - (void)updateBackgroundColor
@@ -219,17 +221,14 @@ const CGFloat kDesignHeight = 299.0;
   
   ASRatioLayoutSpec *imagePlace = [ASRatioLayoutSpec ratioLayoutSpecWithRatio:imageRatio child:self.dealImageView];
   
-  ASCenterLayoutSpec *centerLabel = [ASCenterLayoutSpec centerLayoutSpecWithCenteringOptions:ASCenterLayoutSpecCenteringXY sizingOptions:ASCenterLayoutSpecSizingOptionMinimumXY child:self.soldOutLabelFlat];
-  ASOverlayLayoutSpec *soldOutOverImage = [ASOverlayLayoutSpec overlayLayoutSpecWithChild:imagePlace overlay:centerLabel];
-  
-  ASOverlayLayoutSpec *soldOut = [ASOverlayLayoutSpec overlayLayoutSpecWithChild:self.soldOutOverlay overlay:self.soldOutOverlayTop];
-  soldOut.flexGrow = YES;
+  ASCenterLayoutSpec *centerSoldOutLabel = [ASCenterLayoutSpec centerLayoutSpecWithCenteringOptions:ASCenterLayoutSpecCenteringXY sizingOptions:ASCenterLayoutSpecSizingOptionMinimumXY child:self.soldOutLabelFlat];
+  ASOverlayLayoutSpec *soldOutOverImage = [ASOverlayLayoutSpec overlayLayoutSpecWithChild:imagePlace overlay:centerSoldOutLabel];
   
   NSArray *stackChildren = @[soldOutOverImage, textWrapper];
   
   ASStackLayoutSpec *mainStack = [ASStackLayoutSpec stackLayoutSpecWithDirection:ASStackLayoutDirectionVertical spacing:0.0 justifyContent:ASStackLayoutJustifyContentStart alignItems:ASStackLayoutAlignItemsStretch children:stackChildren];
   
-  ASOverlayLayoutSpec *soldOutOverlay = [ASOverlayLayoutSpec overlayLayoutSpecWithChild:mainStack overlay:soldOut];
+  ASOverlayLayoutSpec *soldOutOverlay = [ASOverlayLayoutSpec overlayLayoutSpecWithChild:mainStack overlay:self.soldOutOverlay];
   
   return soldOutOverlay;
 }
@@ -237,11 +236,8 @@ const CGFloat kDesignHeight = 299.0;
 - (void)layout {
   [super layout];
   
-  self.soldOutOverlayTop.frame = self.soldOutOverlay.bounds;
-  CGSize soldOutSize = [self.soldOutLabelFlat calculatedSize];
   CGFloat imageHeight = CGRectGetHeight(self.dealImageView.frame);
   CGFloat viewWidth = CGRectGetWidth(self.frame);
-  self.soldOutLabelFlat.frame = CGRectMake((viewWidth - soldOutSize.width) / 2.0, ( imageHeight - soldOutSize.height) / 2.0, soldOutSize.width, soldOutSize.height);
   CGFloat soldOutBGHeight = 50;
   self.soldOutLabelBackground.frame = CGRectMake(0, (imageHeight - soldOutBGHeight) / 2.0, viewWidth, soldOutBGHeight);
 }
