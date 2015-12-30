@@ -75,7 +75,7 @@ const CGFloat kDesignHeight = 299.0;
   self.soldOutLabelFlat = [[ASTextNode alloc] init];
 
   self.soldOutLabelBackground = [[ASDisplayNode alloc] init];
-  self.soldOutLabelBackground.sizeRange = ASRelativeSizeRangeMake(ASRelativeSizeMake(ASRelativeDimensionMakeWithPercent(0), ASRelativeDimensionMakeWithPoints(50.0)), ASRelativeSizeMake(ASRelativeDimensionMakeWithPercent(100), ASRelativeDimensionMakeWithPoints(50.0)));
+  self.soldOutLabelBackground.sizeRange = ASRelativeSizeRangeMake(ASRelativeSizeMake(ASRelativeDimensionMakeWithPercent(1), ASRelativeDimensionMakeWithPoints(50.0)), ASRelativeSizeMake(ASRelativeDimensionMakeWithPercent(1), ASRelativeDimensionMakeWithPoints(50.0)));
   self.soldOutLabelBackground.backgroundColor = [[UIColor whiteColor] colorWithAlphaComponent:0.9];
   self.soldOutLabelBackground.flexGrow = YES;
   
@@ -221,8 +221,7 @@ const CGFloat kDesignHeight = 299.0;
   
   ASRatioLayoutSpec *imagePlace = [ASRatioLayoutSpec ratioLayoutSpecWithRatio:imageRatio child:self.dealImageView];
   
-  ASCenterLayoutSpec *centerSoldOutLabel = [ASCenterLayoutSpec centerLayoutSpecWithCenteringOptions:ASCenterLayoutSpecCenteringXY sizingOptions:ASCenterLayoutSpecSizingOptionMinimumXY child:self.soldOutLabelFlat];
-  ASOverlayLayoutSpec *soldOutOverImage = [ASOverlayLayoutSpec overlayLayoutSpecWithChild:imagePlace overlay:centerSoldOutLabel];
+  ASOverlayLayoutSpec *soldOutOverImage = [ASOverlayLayoutSpec overlayLayoutSpecWithChild:imagePlace overlay:[self soldOutLabelSpec]];
   
   NSArray *stackChildren = @[soldOutOverImage, textWrapper];
   
@@ -233,15 +232,13 @@ const CGFloat kDesignHeight = 299.0;
   return soldOutOverlay;
 }
 
-- (void)layout {
-  [super layout];
-  
-  CGFloat imageHeight = CGRectGetHeight(self.dealImageView.frame);
-  CGFloat viewWidth = CGRectGetWidth(self.frame);
-  CGFloat soldOutBGHeight = 50;
-  self.soldOutLabelBackground.frame = CGRectMake(0, (imageHeight - soldOutBGHeight) / 2.0, viewWidth, soldOutBGHeight);
+- (ASLayoutSpec *)soldOutLabelSpec {
+  ASCenterLayoutSpec *centerSoldOutLabel = [ASCenterLayoutSpec centerLayoutSpecWithCenteringOptions:ASCenterLayoutSpecCenteringXY sizingOptions:ASCenterLayoutSpecSizingOptionMinimumXY child:self.soldOutLabelFlat];
+  ASStaticLayoutSpec *soldOutBG = [ASStaticLayoutSpec staticLayoutSpecWithChildren:@[self.soldOutLabelBackground]];
+  ASCenterLayoutSpec *centerSoldOut = [ASCenterLayoutSpec centerLayoutSpecWithCenteringOptions:ASCenterLayoutSpecCenteringXY sizingOptions:ASCenterLayoutSpecSizingOptionDefault child:soldOutBG];
+  ASBackgroundLayoutSpec *soldOutLabelOverBackground = [ASBackgroundLayoutSpec backgroundLayoutSpecWithChild:centerSoldOutLabel background:centerSoldOut];
+  return soldOutLabelOverBackground;
 }
-
 
 + (CGSize)sizeForWidth:(CGFloat)width {
   CGFloat height = [self scaledHeightForPreferredSize:[self preferredViewSize] scaledWidth:width];
