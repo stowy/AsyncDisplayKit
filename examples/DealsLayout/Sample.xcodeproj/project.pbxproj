@@ -7,25 +7,29 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		25A1FA851C02F7AC00193875 /* MosaicCollectionViewLayout.m in Sources */ = {isa = PBXBuildFile; fileRef = 25A1FA841C02F7AC00193875 /* MosaicCollectionViewLayout.m */; };
-		25A1FA881C02FCB000193875 /* ImageCellNode.m in Sources */ = {isa = PBXBuildFile; fileRef = 25A1FA871C02FCB000193875 /* ImageCellNode.m */; };
-		9B92C8811BC17D3000EE46B2 /* SupplementaryNode.m in Sources */ = {isa = PBXBuildFile; fileRef = 9B92C8801BC17D3000EE46B2 /* SupplementaryNode.m */; };
+		25FDEC921BF31EE700CEB123 /* ItemNode.m in Sources */ = {isa = PBXBuildFile; fileRef = 25FDEC911BF31EE700CEB123 /* ItemNode.m */; };
+		7A83848E1C34359D002CDD08 /* ItemViewModel.m in Sources */ = {isa = PBXBuildFile; fileRef = 7A83848D1C34359D002CDD08 /* ItemViewModel.m */; };
+		7A8384941C343680002CDD08 /* BlurbNode.m in Sources */ = {isa = PBXBuildFile; fileRef = 7A8384921C343680002CDD08 /* BlurbNode.m */; };
+		7A8384971C344057002CDD08 /* ItemStyles.m in Sources */ = {isa = PBXBuildFile; fileRef = 7A8384961C344057002CDD08 /* ItemStyles.m */; };
 		9BA2CEA11BB2579C00D18414 /* Launchboard.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 9BA2CEA01BB2579C00D18414 /* Launchboard.storyboard */; };
 		AC3C4A641A11F47200143C57 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = AC3C4A631A11F47200143C57 /* main.m */; };
 		AC3C4A671A11F47200143C57 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = AC3C4A661A11F47200143C57 /* AppDelegate.m */; };
 		AC3C4A6A1A11F47200143C57 /* ViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = AC3C4A691A11F47200143C57 /* ViewController.m */; };
 		AC3C4A8E1A11F80C00143C57 /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = AC3C4A8D1A11F80C00143C57 /* Images.xcassets */; };
 		FABD6D156A3EB118497E5CE6 /* libPods.a in Frameworks */ = {isa = PBXBuildFile; fileRef = F02BAF78E68BC56FD8C161B7 /* libPods.a */; };
+		FC3FCA801C2B1564009F6D6D /* PresentingViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = FC3FCA7F1C2B1564009F6D6D /* PresentingViewController.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
-		25A1FA831C02F7AC00193875 /* MosaicCollectionViewLayout.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MosaicCollectionViewLayout.h; sourceTree = "<group>"; };
-		25A1FA841C02F7AC00193875 /* MosaicCollectionViewLayout.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MosaicCollectionViewLayout.m; sourceTree = "<group>"; };
-		25A1FA861C02FCB000193875 /* ImageCellNode.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ImageCellNode.h; sourceTree = "<group>"; };
-		25A1FA871C02FCB000193875 /* ImageCellNode.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ImageCellNode.m; sourceTree = "<group>"; };
+		25FDEC901BF31EE700CEB123 /* ItemNode.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ItemNode.h; sourceTree = "<group>"; };
+		25FDEC911BF31EE700CEB123 /* ItemNode.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ItemNode.m; sourceTree = "<group>"; };
 		2DBAEE96397BB913350C4530 /* Pods.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = Pods.debug.xcconfig; path = "Pods/Target Support Files/Pods/Pods.debug.xcconfig"; sourceTree = "<group>"; };
-		9B92C87F1BC17D3000EE46B2 /* SupplementaryNode.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SupplementaryNode.h; sourceTree = "<group>"; };
-		9B92C8801BC17D3000EE46B2 /* SupplementaryNode.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SupplementaryNode.m; sourceTree = "<group>"; };
+		7A83848C1C34359D002CDD08 /* ItemViewModel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ItemViewModel.h; sourceTree = "<group>"; };
+		7A83848D1C34359D002CDD08 /* ItemViewModel.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ItemViewModel.m; sourceTree = "<group>"; };
+		7A8384911C343680002CDD08 /* BlurbNode.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BlurbNode.h; sourceTree = "<group>"; };
+		7A8384921C343680002CDD08 /* BlurbNode.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = BlurbNode.m; sourceTree = "<group>"; };
+		7A8384951C344057002CDD08 /* ItemStyles.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ItemStyles.h; sourceTree = "<group>"; };
+		7A8384961C344057002CDD08 /* ItemStyles.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ItemStyles.m; sourceTree = "<group>"; };
 		9BA2CEA01BB2579C00D18414 /* Launchboard.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; path = Launchboard.storyboard; sourceTree = "<group>"; };
 		AC3C4A5E1A11F47200143C57 /* Sample.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Sample.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		AC3C4A621A11F47200143C57 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -37,6 +41,8 @@
 		AC3C4A8D1A11F80C00143C57 /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Images.xcassets; sourceTree = "<group>"; };
 		CD1ABB23007FEDB31D8C1978 /* Pods.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = Pods.release.xcconfig; path = "Pods/Target Support Files/Pods/Pods.release.xcconfig"; sourceTree = "<group>"; };
 		F02BAF78E68BC56FD8C161B7 /* libPods.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libPods.a; sourceTree = BUILT_PRODUCTS_DIR; };
+		FC3FCA7E1C2B1564009F6D6D /* PresentingViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PresentingViewController.h; sourceTree = "<group>"; };
+		FC3FCA7F1C2B1564009F6D6D /* PresentingViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PresentingViewController.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -81,18 +87,22 @@
 		AC3C4A601A11F47200143C57 /* Sample */ = {
 			isa = PBXGroup;
 			children = (
-				25A1FA831C02F7AC00193875 /* MosaicCollectionViewLayout.h */,
-				25A1FA841C02F7AC00193875 /* MosaicCollectionViewLayout.m */,
 				AC3C4A651A11F47200143C57 /* AppDelegate.h */,
 				AC3C4A661A11F47200143C57 /* AppDelegate.m */,
 				AC3C4A681A11F47200143C57 /* ViewController.h */,
 				AC3C4A691A11F47200143C57 /* ViewController.m */,
-				25A1FA861C02FCB000193875 /* ImageCellNode.h */,
-				25A1FA871C02FCB000193875 /* ImageCellNode.m */,
+				FC3FCA7E1C2B1564009F6D6D /* PresentingViewController.h */,
+				FC3FCA7F1C2B1564009F6D6D /* PresentingViewController.m */,
 				AC3C4A8D1A11F80C00143C57 /* Images.xcassets */,
 				AC3C4A611A11F47200143C57 /* Supporting Files */,
-				9B92C87F1BC17D3000EE46B2 /* SupplementaryNode.h */,
-				9B92C8801BC17D3000EE46B2 /* SupplementaryNode.m */,
+				25FDEC901BF31EE700CEB123 /* ItemNode.h */,
+				25FDEC911BF31EE700CEB123 /* ItemNode.m */,
+				7A8384951C344057002CDD08 /* ItemStyles.h */,
+				7A8384961C344057002CDD08 /* ItemStyles.m */,
+				7A83848C1C34359D002CDD08 /* ItemViewModel.h */,
+				7A83848D1C34359D002CDD08 /* ItemViewModel.m */,
+				7A8384911C343680002CDD08 /* BlurbNode.h */,
+				7A8384921C343680002CDD08 /* BlurbNode.m */,
 			);
 			indentWidth = 2;
 			path = Sample;
@@ -130,7 +140,7 @@
 				AC3C4A5B1A11F47200143C57 /* Frameworks */,
 				AC3C4A5C1A11F47200143C57 /* Resources */,
 				A6902C454C7661D0D277AC62 /* Copy Pods Resources */,
-				570BBF31BBC411FCAE319551 /* Embed Pods Frameworks */,
+				B4CD33E927E6F4EE5DD6CCF0 /* Embed Pods Frameworks */,
 			);
 			buildRules = (
 			);
@@ -186,21 +196,6 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXShellScriptBuildPhase section */
-		570BBF31BBC411FCAE319551 /* Embed Pods Frameworks */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputPaths = (
-			);
-			name = "Embed Pods Frameworks";
-			outputPaths = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods/Pods-frameworks.sh\"\n";
-			showEnvVarsInLog = 0;
-		};
 		A6902C454C7661D0D277AC62 /* Copy Pods Resources */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
@@ -214,6 +209,21 @@
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
 			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods/Pods-resources.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+		B4CD33E927E6F4EE5DD6CCF0 /* Embed Pods Frameworks */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "Embed Pods Frameworks";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods/Pods-frameworks.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
 		F868CFBB21824CC9521B6588 /* Check Pods Manifest.lock */ = {
@@ -238,12 +248,14 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				25A1FA851C02F7AC00193875 /* MosaicCollectionViewLayout.m in Sources */,
+				25FDEC921BF31EE700CEB123 /* ItemNode.m in Sources */,
 				AC3C4A6A1A11F47200143C57 /* ViewController.m in Sources */,
-				9B92C8811BC17D3000EE46B2 /* SupplementaryNode.m in Sources */,
+				7A8384971C344057002CDD08 /* ItemStyles.m in Sources */,
+				FC3FCA801C2B1564009F6D6D /* PresentingViewController.m in Sources */,
+				7A8384941C343680002CDD08 /* BlurbNode.m in Sources */,
+				7A83848E1C34359D002CDD08 /* ItemViewModel.m in Sources */,
 				AC3C4A671A11F47200143C57 /* AppDelegate.m in Sources */,
 				AC3C4A641A11F47200143C57 /* main.m in Sources */,
-				25A1FA881C02FCB000193875 /* ImageCellNode.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
