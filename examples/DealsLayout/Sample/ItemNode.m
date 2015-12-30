@@ -49,6 +49,10 @@ const CGFloat kDesignHeight = 299.0;
   return self;
 }
 
++ (BOOL)isRTL {
+  return [UIApplication sharedApplication].userInterfaceLayoutDirection == UIUserInterfaceLayoutDirectionRightToLeft;
+}
+
 - (void)setup {
   self.dealImageView = [[ASNetworkImageNode alloc] init];
   self.dealImageView.delegate = self;
@@ -100,8 +104,7 @@ const CGFloat kDesignHeight = 299.0;
   
   [self addSubnode:self.soldOutOverlay];
   
-  BOOL isRTL = NO;
-  if (isRTL) {
+  if ([ItemNode isRTL]) {
     self.titleLabel.alignSelf = ASStackLayoutAlignSelfEnd;
     self.firstInfoLabel.alignSelf = ASStackLayoutAlignSelfEnd;
     self.distanceLabel.alignSelf = ASStackLayoutAlignSelfEnd;
@@ -208,9 +211,16 @@ const CGFloat kDesignHeight = 299.0;
   ASLayoutSpec *horizontalSpacer2 = [[ASLayoutSpec alloc] init];
   horizontalSpacer2.flexGrow = YES;
   
-  ASStackLayoutSpec *info1Stack = [ASStackLayoutSpec stackLayoutSpecWithDirection:ASStackLayoutDirectionHorizontal spacing:1.0 justifyContent:ASStackLayoutJustifyContentStart alignItems:ASStackLayoutAlignItemsBaselineLast children:@[self.firstInfoLabel, self.distanceLabel, horizontalSpacer1, self.originalPriceLabel]];
+  NSArray *info1Children = @[self.firstInfoLabel, self.distanceLabel, horizontalSpacer1, self.originalPriceLabel];
+  NSArray *info2Children = @[self.secondInfoLabel, horizontalSpacer2, self.finalPriceLabel];
+  if ([ItemNode isRTL]) {
+    info1Children = [[info1Children reverseObjectEnumerator] allObjects];
+    info2Children = [[info2Children reverseObjectEnumerator] allObjects];
+  }
   
-  ASStackLayoutSpec *info2Stack = [ASStackLayoutSpec stackLayoutSpecWithDirection:ASStackLayoutDirectionHorizontal spacing:0.0 justifyContent:ASStackLayoutJustifyContentCenter alignItems:ASStackLayoutAlignItemsBaselineLast children:@[self.secondInfoLabel, horizontalSpacer2, self.finalPriceLabel]];
+  ASStackLayoutSpec *info1Stack = [ASStackLayoutSpec stackLayoutSpecWithDirection:ASStackLayoutDirectionHorizontal spacing:1.0 justifyContent:ASStackLayoutJustifyContentStart alignItems:ASStackLayoutAlignItemsBaselineLast children:info1Children];
+  
+  ASStackLayoutSpec *info2Stack = [ASStackLayoutSpec stackLayoutSpecWithDirection:ASStackLayoutDirectionHorizontal spacing:0.0 justifyContent:ASStackLayoutJustifyContentCenter alignItems:ASStackLayoutAlignItemsBaselineLast children:info2Children];
   
   ASStackLayoutSpec *textStack = [ASStackLayoutSpec stackLayoutSpecWithDirection:ASStackLayoutDirectionVertical spacing:0.0 justifyContent:ASStackLayoutJustifyContentEnd alignItems:ASStackLayoutAlignItemsStretch children:@[self.titleLabel, verticalSpacer, info1Stack, info2Stack]];
   
