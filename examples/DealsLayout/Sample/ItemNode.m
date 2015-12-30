@@ -195,11 +195,6 @@ const CGFloat kDesignHeight = 299.0;
   
   ASLayoutSpec *verticalSpacer = [[ASLayoutSpec alloc] init];
   verticalSpacer.flexGrow = YES;
-  verticalSpacer.flexShrink = YES;
-  
-  ASLayoutSpec *horizontalSpacer0 = [[ASLayoutSpec alloc] init];
-  horizontalSpacer0.flexGrow = YES;
-  horizontalSpacer0.flexShrink = YES;
   
   ASLayoutSpec *horizontalSpacer1 = [[ASLayoutSpec alloc] init];
   horizontalSpacer1.flexGrow = YES;
@@ -207,18 +202,14 @@ const CGFloat kDesignHeight = 299.0;
   ASLayoutSpec *horizontalSpacer2 = [[ASLayoutSpec alloc] init];
   horizontalSpacer2.flexGrow = YES;
   
-  ASStackLayoutSpec *titleStack = [ASStackLayoutSpec stackLayoutSpecWithDirection:ASStackLayoutDirectionHorizontal spacing:1.0 justifyContent:ASStackLayoutJustifyContentStart alignItems:ASStackLayoutAlignItemsStart children:@[self.titleLabel, horizontalSpacer0]];
-  titleStack.alignSelf = ASStackLayoutAlignSelfStart;
-  titleStack.flexGrow = YES;
-  
   ASStackLayoutSpec *info1Stack = [ASStackLayoutSpec stackLayoutSpecWithDirection:ASStackLayoutDirectionHorizontal spacing:1.0 justifyContent:ASStackLayoutJustifyContentStart alignItems:ASStackLayoutAlignItemsStretch children:@[self.firstInfoLabel, self.distanceLabel, horizontalSpacer1, self.originalPriceLabel]];
-  info1Stack.alignSelf = ASStackLayoutAlignSelfStretch;
+  info1Stack.alignItems = ASStackLayoutAlignItemsStretch;
   
   ASStackLayoutSpec *info2Stack = [ASStackLayoutSpec stackLayoutSpecWithDirection:ASStackLayoutDirectionHorizontal spacing:0.0 justifyContent:ASStackLayoutJustifyContentStart alignItems:ASStackLayoutAlignItemsStretch children:@[self.secondInfoLabel, horizontalSpacer2, self.finalPriceLabel]];
-  info2Stack.alignSelf = ASStackLayoutAlignSelfStretch;
+  info2Stack.alignItems = ASStackLayoutAlignItemsStretch;
   
-  ASStackLayoutSpec *textStack = [ASStackLayoutSpec stackLayoutSpecWithDirection:ASStackLayoutDirectionVertical spacing:0.0 justifyContent:ASStackLayoutJustifyContentStart alignItems:ASStackLayoutAlignItemsStretch children:@[titleStack, verticalSpacer, info1Stack, info2Stack]];
-  textStack.alignSelf = ASStackLayoutAlignSelfStretch;
+  ASStackLayoutSpec *textStack = [ASStackLayoutSpec stackLayoutSpecWithDirection:ASStackLayoutDirectionVertical spacing:0.0 justifyContent:ASStackLayoutJustifyContentStart alignItems:ASStackLayoutAlignItemsStretch children:@[self.titleLabel, verticalSpacer, info1Stack, info2Stack]];
+  textStack.alignItems = ASStackLayoutAlignItemsStretch;
   textStack.flexGrow = YES;
   
   ASInsetLayoutSpec *textWrapper = [ASInsetLayoutSpec insetLayoutSpecWithInsets:textInsets child:textStack];
