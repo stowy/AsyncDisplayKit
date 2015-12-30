@@ -80,7 +80,7 @@ const CGFloat kDesignHeight = 299.0;
   
   self.soldOutOverlayTop = [[ASDisplayNode alloc] init];
   self.soldOutOverlayTop.flexGrow = YES;
-  self.soldOutLabelFlat.backgroundColor = [[UIColor whiteColor] colorWithAlphaComponent:0.5];
+  self.soldOutOverlayTop.backgroundColor = [[UIColor whiteColor] colorWithAlphaComponent:0.5];
   
   [self addSubnode:self.dealImageView];
   [self addSubnode:self.titleLabel];
@@ -235,9 +235,7 @@ const CGFloat kDesignHeight = 299.0;
   
   NSArray *stackChildren = @[soldOutOverImage, textWrapper];
   
-  ASStackLayoutSpec *mainStack = [ASStackLayoutSpec stackLayoutSpecWithDirection:ASStackLayoutDirectionVertical spacing:0.0 justifyContent:ASStackLayoutJustifyContentStart alignItems:ASStackLayoutAlignItemsCenter children:stackChildren];
-  
-  mainStack.alignSelf = ASStackLayoutAlignSelfStretch;
+  ASStackLayoutSpec *mainStack = [ASStackLayoutSpec stackLayoutSpecWithDirection:ASStackLayoutDirectionVertical spacing:0.0 justifyContent:ASStackLayoutJustifyContentStart alignItems:ASStackLayoutAlignItemsStretch children:stackChildren];
   
   return mainStack;
 }
