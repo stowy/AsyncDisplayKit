@@ -15,6 +15,8 @@
 const CGFloat kFixedLabelsAreaHeight = 96.0;
 const CGFloat kDesignWidth = 320.0;
 const CGFloat kDesignHeight = 299.0;
+const CGFloat kBadgeHeight = 34.0;
+const CGFloat kSoldOutGBHeight = 50.0;
 
 @interface ItemNode() <ASNetworkImageNodeDelegate>
 
@@ -31,6 +33,7 @@ const CGFloat kDesignHeight = 299.0;
 @property (nonatomic, strong) ASTextNode *soldOutLabelFlat;
 @property (nonatomic, strong) ASDisplayNode *soldOutLabelBackground;
 @property (nonatomic, strong) ASDisplayNode *soldOutOverlay;
+@property (nonatomic, strong) ASTextNode *badge;
 
 @end
 
@@ -76,10 +79,15 @@ const CGFloat kDesignHeight = 299.0;
   self.finalPriceLabel = [[ASTextNode alloc] init];
   self.finalPriceLabel.maximumNumberOfLines = 1;
   
+  self.badge = [[ASTextNode alloc] init];
+  self.badge.backgroundColor = [ItemStyles badgeColor];
+  self.badge.hidden = YES;
+  self.badge.sizeRange = ASRelativeSizeRangeMake(ASRelativeSizeMake(ASRelativeDimensionMakeWithPercent(0), ASRelativeDimensionMakeWithPoints(kBadgeHeight)), ASRelativeSizeMake(ASRelativeDimensionMakeWithPercent(1), ASRelativeDimensionMakeWithPoints(kBadgeHeight)));
+  
   self.soldOutLabelFlat = [[ASTextNode alloc] init];
 
   self.soldOutLabelBackground = [[ASDisplayNode alloc] init];
-  self.soldOutLabelBackground.sizeRange = ASRelativeSizeRangeMake(ASRelativeSizeMake(ASRelativeDimensionMakeWithPercent(1), ASRelativeDimensionMakeWithPoints(50.0)), ASRelativeSizeMake(ASRelativeDimensionMakeWithPercent(1), ASRelativeDimensionMakeWithPoints(50.0)));
+  self.soldOutLabelBackground.sizeRange = ASRelativeSizeRangeMake(ASRelativeSizeMake(ASRelativeDimensionMakeWithPercent(1), ASRelativeDimensionMakeWithPoints(kSoldOutGBHeight)), ASRelativeSizeMake(ASRelativeDimensionMakeWithPercent(1), ASRelativeDimensionMakeWithPoints(kSoldOutGBHeight)));
   self.soldOutLabelBackground.backgroundColor = [[UIColor whiteColor] colorWithAlphaComponent:0.9];
   self.soldOutLabelBackground.flexGrow = YES;
   
@@ -94,6 +102,7 @@ const CGFloat kDesignHeight = 299.0;
   [self addSubnode:self.originalPriceLabel];
   [self addSubnode:self.finalPriceLabel];
   [self addSubnode:self.distanceLabel];
+  [self addSubnode:self.badge];
   
   [self addSubnode:self.soldOutLabelBackground];
   [self addSubnode:self.soldOutLabelFlat];
@@ -151,14 +160,20 @@ const CGFloat kDesignHeight = 299.0;
   self.soldOutOverlay.hidden = !isSoldOut;
   self.soldOutLabelFlat.hidden = !isSoldOut;
   self.soldOutLabelBackground.hidden = !isSoldOut;
+  
+  BOOL hasBadge = self.viewModel.badgeText != nil;
+  if (hasBadge) {
+    self.badge.attributedString = [[NSAttributedString alloc] initWithString:self.viewModel.badgeText attributes:[ItemStyles badgeStyle]];
+  }
+  self.badge.hidden = !hasBadge;
 }
 
 - (void)updateBackgroundColor
 {
   if (self.highlighted) {
-    self.backgroundColor = [UIColor grayColor];
+    self.backgroundColor = [[UIColor grayColor] colorWithAlphaComponent:0.3];
   } else if (self.selected) {
-    self.backgroundColor = [UIColor darkGrayColor];
+    self.backgroundColor = [UIColor lightGrayColor];
   } else {
     self.backgroundColor = [UIColor whiteColor];
   }
@@ -231,7 +246,11 @@ const CGFloat kDesignHeight = 299.0;
   
   ASRatioLayoutSpec *imagePlace = [ASRatioLayoutSpec ratioLayoutSpecWithRatio:imageRatio child:self.dealImageView];
   
-  ASOverlayLayoutSpec *soldOutOverImage = [ASOverlayLayoutSpec overlayLayoutSpecWithChild:imagePlace overlay:[self soldOutLabelSpec]];
+  self.badge.layoutPosition = CGPointMake(0, constrainedSize.max.height - kBadgeHeight - kFixedLabelsAreaHeight);
+  ASStaticLayoutSpec *badgeSpec = [ASStaticLayoutSpec staticLayoutSpecWithChildren:@[self.badge]];
+  ASOverlayLayoutSpec *badgeOverImage = [ASOverlayLayoutSpec overlayLayoutSpecWithChild:imagePlace overlay:badgeSpec];
+  
+  ASOverlayLayoutSpec *soldOutOverImage = [ASOverlayLayoutSpec overlayLayoutSpecWithChild:badgeOverImage overlay:[self soldOutLabelSpec]];
   
   NSArray *stackChildren = @[soldOutOverImage, textWrapper];
   

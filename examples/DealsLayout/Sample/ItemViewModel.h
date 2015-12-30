@@ -20,6 +20,7 @@
 @property (nonatomic, copy) NSString *finalPriceText;
 @property (nonatomic, copy) NSString *soldOutText;
 @property (nonatomic, copy) NSString *distanceLabelText;
+@property (nonatomic, copy) NSString *badgeText;
 
 - (NSURL *)imageURLWithSize:(CGSize)size;
 

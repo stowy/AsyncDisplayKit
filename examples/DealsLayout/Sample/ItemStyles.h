@@ -17,4 +17,6 @@
 + (NSDictionary *)originalPriceStyle;
 + (NSDictionary *)finalPriceStyle;
 + (NSDictionary *)soldOutStyle;
++ (NSDictionary *)badgeStyle;
++ (UIColor *)badgeColor;
 @end

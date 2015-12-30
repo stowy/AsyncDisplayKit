@@ -72,4 +72,14 @@ UIFont *kInfoFont;
             NSForegroundColorAttributeName:kTitleColor};
 }
 
++ (NSDictionary *)badgeStyle {
+  // Setup Sold Out Label
+  return @{ NSFontAttributeName:kTitleFont,
+            NSForegroundColorAttributeName:[UIColor whiteColor]};
+}
+
++ (UIColor *)badgeColor {
+  return [[UIColor purpleColor] colorWithAlphaComponent:0.4];
+}
+
 @end
