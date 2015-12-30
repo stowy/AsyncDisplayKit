@@ -53,7 +53,7 @@ const CGFloat kDesignHeight = 299.0;
   self.dealImageView = [[ASNetworkImageNode alloc] init];
   self.dealImageView.delegate = self;
   self.dealImageView.placeholderEnabled = YES;
-  self.dealImageView.placeholderColor = [UIColor lightGrayColor];
+  self.dealImageView.placeholderColor = [UIColor grayColor];
   self.dealImageView.placeholderFadeDuration = 0.3;
   
   self.titleLabel = [[ASTextNode alloc] init];
@@ -172,6 +172,11 @@ const CGFloat kDesignHeight = 299.0;
 }
 
 #pragma mark - superclass
+
+- (void)displayWillStart {
+  [super displayWillStart];
+  [self fetchData];
+}
 
 - (void)fetchData {
   [super fetchData];

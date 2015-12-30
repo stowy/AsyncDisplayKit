@@ -59,6 +59,8 @@
   
   [self.view addSubview:_collectionView];
 
+  [self.view setNeedsLayout];
+  [self.view layoutIfNeeded];
 #if SIMULATE_WEB_RESPONSE
   __weak typeof(self) weakSelf = self;
   void(^mockWebService)() = ^{
@@ -144,7 +146,7 @@
 
 - (CGSize)collectionView:(ASCollectionView *)collectionView layout:(UICollectionViewLayout *)collectionViewLayout referenceSizeForHeaderInSection:(NSInteger)section {
   if (section == 0) {
-    return CGSizeMake(CGRectGetWidth(self.view.frame), 50);
+    return CGSizeMake(CGRectGetWidth(self.view.frame), 75);
   }
   return CGSizeZero;
 }

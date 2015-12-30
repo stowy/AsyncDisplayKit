@@ -44,6 +44,7 @@ static NSString *kLinkAttributeName = @"PlaceKittenNodeLinkAttributeName";
   self.backgroundColor = [UIColor lightGrayColor];
   // create a text node
   _textNode = [[ASTextNode alloc] init];
+  _textNode.maximumNumberOfLines = 2;
 
   // configure the node to support tappable links
   _textNode.delegate = self;
@@ -51,7 +52,7 @@ static NSString *kLinkAttributeName = @"PlaceKittenNodeLinkAttributeName";
   _textNode.linkAttributeNames = @[ kLinkAttributeName ];
 
   // generate an attributed string using the custom link attribute specified above
-  NSString *blurb = @"kittens courtesy placekitten.com \U0001F638";
+  NSString *blurb = @"kittens courtesy placekitten.com \U0001F638 \nTitles courtesy of catipsum.com";
   NSMutableAttributedString *string = [[NSMutableAttributedString alloc] initWithString:blurb];
   [string addAttribute:NSFontAttributeName value:[UIFont fontWithName:@"HelveticaNeue-Light" size:16.0f] range:NSMakeRange(0, blurb.length)];
   [string addAttributes:@{
@@ -60,6 +61,11 @@ static NSString *kLinkAttributeName = @"PlaceKittenNodeLinkAttributeName";
                           NSUnderlineStyleAttributeName: @(NSUnderlineStyleSingle | NSUnderlinePatternDot),
                           }
                   range:[blurb rangeOfString:@"placekitten.com"]];
+  [string addAttributes:@{
+                          kLinkAttributeName: [NSURL URLWithString:@"http://www.catipsum.com/"],
+                          NSForegroundColorAttributeName: [UIColor grayColor],
+                          NSUnderlineStyleAttributeName: @(NSUnderlineStyleSingle | NSUnderlinePatternDot),
+                          } range:[blurb rangeOfString:@"catipsum.com"]];
   _textNode.attributedString = string;
 
   // add it as a subnode, and we're done
