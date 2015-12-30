@@ -203,9 +203,9 @@ const CGFloat kDesignHeight = 299.0;
   ASLayoutSpec *horizontalSpacer2 = [[ASLayoutSpec alloc] init];
   horizontalSpacer2.flexGrow = YES;
   
-  ASStackLayoutSpec *info1Stack = [ASStackLayoutSpec stackLayoutSpecWithDirection:ASStackLayoutDirectionHorizontal spacing:1.0 justifyContent:ASStackLayoutJustifyContentStart alignItems:ASStackLayoutAlignItemsStretch children:@[self.firstInfoLabel, self.distanceLabel, horizontalSpacer1, self.originalPriceLabel]];
+  ASStackLayoutSpec *info1Stack = [ASStackLayoutSpec stackLayoutSpecWithDirection:ASStackLayoutDirectionHorizontal spacing:1.0 justifyContent:ASStackLayoutJustifyContentStart alignItems:ASStackLayoutAlignItemsBaselineLast children:@[self.firstInfoLabel, self.distanceLabel, horizontalSpacer1, self.originalPriceLabel]];
   
-  ASStackLayoutSpec *info2Stack = [ASStackLayoutSpec stackLayoutSpecWithDirection:ASStackLayoutDirectionHorizontal spacing:0.0 justifyContent:ASStackLayoutJustifyContentCenter alignItems:ASStackLayoutAlignItemsStretch children:@[self.secondInfoLabel, horizontalSpacer2, self.finalPriceLabel]];
+  ASStackLayoutSpec *info2Stack = [ASStackLayoutSpec stackLayoutSpecWithDirection:ASStackLayoutDirectionHorizontal spacing:0.0 justifyContent:ASStackLayoutJustifyContentCenter alignItems:ASStackLayoutAlignItemsBaselineLast children:@[self.secondInfoLabel, horizontalSpacer2, self.finalPriceLabel]];
   
   ASStackLayoutSpec *textStack = [ASStackLayoutSpec stackLayoutSpecWithDirection:ASStackLayoutDirectionVertical spacing:0.0 justifyContent:ASStackLayoutJustifyContentEnd alignItems:ASStackLayoutAlignItemsStretch children:@[self.titleLabel, verticalSpacer, info1Stack, info2Stack]];
   
@@ -219,13 +219,22 @@ const CGFloat kDesignHeight = 299.0;
   ASOverlayLayoutSpec *soldOut = [ASOverlayLayoutSpec overlayLayoutSpecWithChild:self.soldOutOverlay overlay:self.soldOutOverlayTop];
   soldOut.flexGrow = YES;
   
-  ASOverlayLayoutSpec *soldOutOverImage = [ASOverlayLayoutSpec overlayLayoutSpecWithChild:imagePlace overlay:soldOut];
-  
-  NSArray *stackChildren = @[soldOutOverImage, textWrapper];
+  NSArray *stackChildren = @[imagePlace, textWrapper];
   
   ASStackLayoutSpec *mainStack = [ASStackLayoutSpec stackLayoutSpecWithDirection:ASStackLayoutDirectionVertical spacing:0.0 justifyContent:ASStackLayoutJustifyContentStart alignItems:ASStackLayoutAlignItemsStretch children:stackChildren];
   
-  return mainStack;
+  ASOverlayLayoutSpec *soldOutOverlay = [ASOverlayLayoutSpec overlayLayoutSpecWithChild:mainStack overlay:soldOut];
+  
+  return soldOutOverlay;
+}
+
+- (void)layout {
+  [super layout];
+  
+  self.soldOutOverlayTop.frame = self.soldOutOverlay.bounds;
+  CGFloat soldOutLabelHeight = 50.0;
+  CGFloat centerYImage = CGRectGetHeight(self.dealImageView.frame) / 2.0;
+  self.soldOutLabelFlat.frame = CGRectMake(0, centerYImage - soldOutLabelHeight / 2.0, CGRectGetWidth(self.frame), soldOutLabelHeight);
 }
 
 
