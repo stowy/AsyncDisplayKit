@@ -28,7 +28,7 @@ NSArray *badges;
       _finalPriceText = [NSString stringWithFormat:@"$%zd", [self randomNumberInRange:5 to:30]];
       BOOL isSoldOut = arc4random() % 5 == 0;
       _soldOutText = isSoldOut ? @"SOLD OUT" : nil;
-      _distanceLabelText = [NSString stringWithFormat:@"• %zd mi", [self randomNumberInRange:1 to:20]];
+      _distanceLabelText = [NSString stringWithFormat:@"%zd mi", [self randomNumberInRange:1 to:20]];
       BOOL isBadged = arc4random() % 2 == 0;
       if (isBadged) {
         _badgeText = [self randomObjectFromArray:badges];

@@ -53,6 +53,7 @@ const CGFloat kSoldOutGBHeight = 50.0;
 }
 
 + (BOOL)isRTL {
+//    return YES;
   return [UIApplication sharedApplication].userInterfaceLayoutDirection == UIUserInterfaceLayoutDirectionRightToLeft;
 }
 
@@ -148,7 +149,10 @@ const CGFloat kSoldOutGBHeight = 50.0;
         self.finalPriceLabel.attributedString = [[NSAttributedString alloc] initWithString:self.viewModel.finalPriceText attributes:[ItemStyles finalPriceStyle]];
   }
   if (self.viewModel.distanceLabelText) {
-    self.distanceLabel.attributedString = [[NSAttributedString alloc] initWithString:self.viewModel.distanceLabelText attributes:[ItemStyles distanceStyle]];
+    NSString *format = [ItemNode isRTL] ? @"%@ •" : @"• %@";
+    NSString *distanceText = [NSString stringWithFormat:format, self.viewModel.distanceLabelText];
+    
+    self.distanceLabel.attributedString = [[NSAttributedString alloc] initWithString:distanceText attributes:[ItemStyles distanceStyle]];
   }
   
   BOOL isSoldOut = self.viewModel.soldOutText != nil;
@@ -235,7 +239,8 @@ const CGFloat kSoldOutGBHeight = 50.0;
   
   ASStackLayoutSpec *info1Stack = [ASStackLayoutSpec stackLayoutSpecWithDirection:ASStackLayoutDirectionHorizontal spacing:1.0 justifyContent:ASStackLayoutJustifyContentStart alignItems:ASStackLayoutAlignItemsBaselineLast children:info1Children];
   
-  ASStackLayoutSpec *info2Stack = [ASStackLayoutSpec stackLayoutSpecWithDirection:ASStackLayoutDirectionHorizontal spacing:0.0 justifyContent:ASStackLayoutJustifyContentCenter alignItems:ASStackLayoutAlignItemsBaselineLast children:info2Children];
+//  ASStackLayoutSpec *info2Stack = [ASStackLayoutSpec stackLayoutSpecWithDirection:ASStackLayoutDirectionHorizontal spacing:0.0 justifyContent:ASStackLayoutJustifyContentCenter alignItems:ASStackLayoutAlignItemsBaselineLast children:info2Children];
+  ASLayoutSpec *info2Stack = [ASCenterLayoutSpec centerLayoutSpecWithCenteringOptions:ASCenterLayoutSpecCenteringXY sizingOptions:ASCenterLayoutSpecSizingOptionDefault child:self.secondInfoLabel];
   
   ASStackLayoutSpec *textStack = [ASStackLayoutSpec stackLayoutSpecWithDirection:ASStackLayoutDirectionVertical spacing:0.0 justifyContent:ASStackLayoutJustifyContentEnd alignItems:ASStackLayoutAlignItemsStretch children:@[self.titleLabel, verticalSpacer, info1Stack, info2Stack]];
   
@@ -246,9 +251,12 @@ const CGFloat kSoldOutGBHeight = 50.0;
   
   ASRatioLayoutSpec *imagePlace = [ASRatioLayoutSpec ratioLayoutSpecWithRatio:imageRatio child:self.dealImageView];
   
-  self.badge.layoutPosition = CGPointMake(0, constrainedSize.max.height - kBadgeHeight - kFixedLabelsAreaHeight);
   ASStaticLayoutSpec *badgeSpec = [ASStaticLayoutSpec staticLayoutSpecWithChildren:@[self.badge]];
-  ASOverlayLayoutSpec *badgeOverImage = [ASOverlayLayoutSpec overlayLayoutSpecWithChild:imagePlace overlay:badgeSpec];
+  ASRelativePositionLayoutSpecPosition badgeAlignment = [ItemNode isRTL] ? ASRelativePositionLayoutSpecPositionMax : ASRelativePositionLayoutSpecPositionZero;
+  
+  ASRelativePositionLayoutSpec *badgePosition = [ASRelativePositionLayoutSpec relativePositionLayoutSpecWithHorizontalPosition:badgeAlignment verticalPosition:ASRelativePositionLayoutSpecPositionMax sizingOption:ASRelativePositionLayoutSpecSizingOptionOptionMinimumY child:badgeSpec];
+  
+  ASOverlayLayoutSpec *badgeOverImage = [ASOverlayLayoutSpec overlayLayoutSpecWithChild:imagePlace overlay:badgePosition];
   
   ASOverlayLayoutSpec *soldOutOverImage = [ASOverlayLayoutSpec overlayLayoutSpecWithChild:badgeOverImage overlay:[self soldOutLabelSpec]];
   
