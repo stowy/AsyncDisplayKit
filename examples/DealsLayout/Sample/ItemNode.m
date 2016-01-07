@@ -11,6 +11,7 @@
 
 #import "ItemNode.h"
 #import "ItemStyles.h"
+#import <WebASDKImageManager/WebASDKImageManager.h>
 
 const CGFloat kFixedLabelsAreaHeight = 96.0;
 const CGFloat kDesignWidth = 320.0;
@@ -58,7 +59,7 @@ const CGFloat kSoldOutGBHeight = 50.0;
 }
 
 - (void)setup {
-  self.dealImageView = [[ASNetworkImageNode alloc] init];
+  self.dealImageView = [[ASNetworkImageNode alloc] initWithWebImage];
   self.dealImageView.delegate = self;
   self.dealImageView.placeholderEnabled = YES;
   self.dealImageView.placeholderColor = [UIColor grayColor];
