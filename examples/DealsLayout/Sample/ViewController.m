@@ -40,10 +40,12 @@
   _collectionView.asyncDataSource = self;
   _collectionView.asyncDelegate = self;
   _collectionView.backgroundColor = [UIColor whiteColor];
+  _collectionView.leadingScreensForBatching = 2;
   
   [_collectionView registerSupplementaryNodeOfKind:UICollectionElementKindSectionHeader];
   
   _data = [[NSMutableArray alloc] init];
+
   
 #if !SIMULATE_WEB_RESPONSE
   self.navigationItem.leftItemsSupplementBackButton = YES;
@@ -69,7 +71,7 @@
     if (strongSelf != nil)
     {
       NSLog(@"ViewController is not nil");
-      [strongSelf appendMoreItems:20];
+      [self appendMoreItems:20 completion:nil];
       NSLog(@"ViewController finished updating collectionView");
     }
     else {
@@ -84,14 +86,19 @@
 #endif
   
 #ifndef SIMULATE_WEB_RESPONSE
-  [self appendMoreItems:20];
+  [self appendMoreItems:20 completion:nil];
 #endif
 }
 
-- (void)appendMoreItems:(NSInteger)numberOfNewItems {
+- (void)appendMoreItems:(NSInteger)numberOfNewItems completion:(void (^)(BOOL))completion {
   NSArray *newData = [self getMoreData:numberOfNewItems];
-  [_data addObjectsFromArray:newData];
-  [_collectionView reloadData];
+  dispatch_async(dispatch_get_main_queue(), ^{
+    [_collectionView performBatchUpdates:^{
+      [_data addObjectsFromArray:newData];
+      NSArray *addedIndexPaths = [self indexPathsForObjects:newData];
+      [_collectionView insertItemsAtIndexPaths:addedIndexPaths];
+    } completion:completion];
+  });
 }
 
 - (NSArray *)getMoreData:(NSInteger)count {
@@ -182,7 +189,9 @@
 - (void)collectionView:(UICollectionView *)collectionView willBeginBatchFetchWithContext:(ASBatchContext *)context
 {
   NSLog(@"fetch additional content");
-  [context completeBatchFetching:YES];
+  [self appendMoreItems:20 completion:^(BOOL finished){
+    [context completeBatchFetching:YES];
+  }];
 }
 
 - (UIEdgeInsets)collectionView:(ASCollectionView *)collectionView layout:(UICollectionViewLayout *)collectionViewLayout insetForSectionAtIndex:(NSInteger)section {
