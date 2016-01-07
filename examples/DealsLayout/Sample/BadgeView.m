@@ -30,4 +30,13 @@
   return self;
 }
 
+- (CGSize)sizeThatFits:(CGSize)size {
+  CGFloat separatorWidth = 8 * 2;
+  size.width -= separatorWidth;
+  CGSize labelSize = [_badgeLabel sizeThatFits:size];
+  labelSize.width += separatorWidth;
+  size.width = labelSize.width;
+  return size;
+}
+
 @end

@@ -83,9 +83,13 @@ const CGFloat kSoldOutGBHeight = 50.0;
   self.finalPriceLabel.maximumNumberOfLines = 1;
   
   self.badge = [[ASDisplayNode alloc] initWithViewBlock:^UIView * _Nonnull{
-    return [[BadgeView alloc] init];
+    BadgeView *badge = [[BadgeView alloc] init];
+    if (self.viewModel.badgeText) {
+      badge.badgeLabel.attributedText = [[NSAttributedString alloc] initWithString:self.viewModel.badgeText attributes:[ItemStyles badgeStyle]];
+      badge.backgroundColor = [ItemStyles badgeColor];
+    }
+    return badge;
   }];
-  self.badge.backgroundColor = [ItemStyles badgeColor];
   self.badge.hidden = YES;
   self.badge.sizeRange = ASRelativeSizeRangeMake(ASRelativeSizeMake(ASRelativeDimensionMakeWithPercent(0), ASRelativeDimensionMakeWithPoints(kBadgeHeight)), ASRelativeSizeMake(ASRelativeDimensionMakeWithPercent(1), ASRelativeDimensionMakeWithPoints(kBadgeHeight)));
   
@@ -170,10 +174,6 @@ const CGFloat kSoldOutGBHeight = 50.0;
   self.soldOutLabelBackground.hidden = !isSoldOut;
   
   BOOL hasBadge = self.viewModel.badgeText != nil;
-  if (hasBadge) {
-    UILabel *label = [(BadgeView *)self.badge.view badgeLabel];
-    label.attributedText = [[NSAttributedString alloc] initWithString:self.viewModel.badgeText attributes:[ItemStyles badgeStyle]];
-  }
   self.badge.hidden = !hasBadge;
 }
 
