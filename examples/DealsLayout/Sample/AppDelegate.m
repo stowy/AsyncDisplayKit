@@ -11,6 +11,7 @@
 
 #import "AppDelegate.h"
 
+#import <SDWebImage/SDWebImage.h>
 #import "PresentingViewController.h"
 #import "ViewController.h"
 
@@ -18,6 +19,9 @@
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
 {
+  [[SDImageCache sharedImageCache] setShouldDecompressImages:NO];
+  [[SDWebImageDownloader sharedDownloader] setShouldDecompressImages:NO];
+  
   self.window = [[UIWindow alloc] initWithFrame:[[UIScreen mainScreen] bounds]];
   self.window.backgroundColor = [UIColor whiteColor];
   self.window.rootViewController = [[UINavigationController alloc] init];
