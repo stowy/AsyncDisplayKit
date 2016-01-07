@@ -63,7 +63,8 @@ const CGFloat kSoldOutGBHeight = 50.0;
   self.dealImageView = [[ASNetworkImageNode alloc] initWithWebImage];
   self.dealImageView.delegate = self;
   self.dealImageView.placeholderEnabled = YES;
-  self.dealImageView.placeholderColor = [UIColor grayColor];
+  self.dealImageView.defaultImage = [UIImage imageNamed:@"cat_face"];
+  self.dealImageView.contentMode = UIViewContentModeScaleAspectFit;
   self.dealImageView.placeholderFadeDuration = 0.3;
   
   self.titleLabel = [[ASTextNode alloc] init];
@@ -89,7 +90,11 @@ const CGFloat kSoldOutGBHeight = 50.0;
       badge.backgroundColor = [ItemStyles badgeColor];
     }
     return badge;
+  } didLoadBlock:^(ASDisplayNode * _Nonnull node) {
+
   }];
+  
+  
   self.badge.hidden = YES;
   self.badge.sizeRange = ASRelativeSizeRangeMake(ASRelativeSizeMake(ASRelativeDimensionMakeWithPercent(0), ASRelativeDimensionMakeWithPoints(kBadgeHeight)), ASRelativeSizeMake(ASRelativeDimensionMakeWithPercent(1), ASRelativeDimensionMakeWithPoints(kBadgeHeight)));
   
@@ -281,6 +286,11 @@ const CGFloat kSoldOutGBHeight = 50.0;
   return soldOutLabelOverBackground;
 }
 
+- (void)layout {
+  [super layout];
+  [self.badge.view sizeToFit];
+}
+
 + (CGSize)sizeForWidth:(CGFloat)width {
   CGFloat height = [self scaledHeightForPreferredSize:[self preferredViewSize] scaledWidth:width];
   return CGSizeMake(width, height);
@@ -297,13 +307,6 @@ const CGFloat kSoldOutGBHeight = 50.0;
   
   return scaledHeight;
 }
-
-- (void)layout {
-  [super layout];
-  [self.badge.view sizeToFit];
-}
-
-
 
 #pragma mark - view operations
 

@@ -39,9 +39,10 @@ NSArray *badges;
 }
 
 - (NSURL *)imageURLWithSize:(CGSize)size {
-  return [NSURL URLWithString:[NSString stringWithFormat:@"https://placekitten.com/%zd/%zd",
+  NSInteger randomNumber = [self randomNumberInRange:1 to:10];
+  return [NSURL URLWithString:[NSString stringWithFormat:@"http://lorempixel.com/%zd/%zd/cats/%zd",
                                                                             (NSInteger)roundl(size.width),
-                                                                            (NSInteger)roundl(size.height)]];
+                                                                            (NSInteger)roundl(size.height), randomNumber]];
 }
 
 // titles courtesy of http://www.catipsum.com/

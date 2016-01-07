@@ -11,7 +11,8 @@
 
 #import "AppDelegate.h"
 
-#import <SDWebImage/SDWebImage.h>
+#import <SDWebImage/SDImageCache.h>
+#import <SDWebImage/SDWebImageManager.h>
 #import "PresentingViewController.h"
 #import "ViewController.h"
 

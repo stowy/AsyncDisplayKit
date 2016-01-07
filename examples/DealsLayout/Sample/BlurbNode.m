@@ -52,7 +52,7 @@ static NSString *kLinkAttributeName = @"PlaceKittenNodeLinkAttributeName";
   _textNode.linkAttributeNames = @[ kLinkAttributeName ];
 
   // generate an attributed string using the custom link attribute specified above
-  NSString *blurb = @"kittens courtesy placekitten.com \U0001F638 \nTitles courtesy of catipsum.com";
+  NSString *blurb = @"Kittens courtesy lorempixel.com \U0001F638 \nTitles courtesy of catipsum.com";
   NSMutableAttributedString *string = [[NSMutableAttributedString alloc] initWithString:blurb];
   [string addAttribute:NSFontAttributeName value:[UIFont fontWithName:@"HelveticaNeue-Light" size:16.0f] range:NSMakeRange(0, blurb.length)];
   [string addAttributes:@{
