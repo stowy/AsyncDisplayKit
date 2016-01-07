@@ -40,9 +40,14 @@ NSArray *badges;
 
 - (NSURL *)imageURLWithSize:(CGSize)size {
   NSInteger randomNumber = [self randomNumberInRange:1 to:10];
-  return [NSURL URLWithString:[NSString stringWithFormat:@"http://lorempixel.com/%zd/%zd/cats/%zd",
-                                                                            (NSInteger)roundl(size.width),
-                                                                            (NSInteger)roundl(size.height), randomNumber]];
+  NSInteger randomLabelNumber = [self randomNumberInRange:1 to:10000];
+  NSString *imageText = [NSString stringWithFormat:@"Fun cat pic %zd", randomLabelNumber];
+  NSString *urlString = [NSString stringWithFormat:@"http://lorempixel.com/%zd/%zd/cats/%zd/%@",
+                         (NSInteger)roundl(size.width),
+                         (NSInteger)roundl(size.height), randomNumber, imageText];
+  urlString = [urlString stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding];
+  
+  return [NSURL URLWithString:urlString];
 }
 
 // titles courtesy of http://www.catipsum.com/
