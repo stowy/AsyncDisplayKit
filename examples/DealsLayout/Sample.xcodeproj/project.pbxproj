@@ -11,6 +11,7 @@
 		7A83848E1C34359D002CDD08 /* ItemViewModel.m in Sources */ = {isa = PBXBuildFile; fileRef = 7A83848D1C34359D002CDD08 /* ItemViewModel.m */; };
 		7A8384941C343680002CDD08 /* BlurbNode.m in Sources */ = {isa = PBXBuildFile; fileRef = 7A8384921C343680002CDD08 /* BlurbNode.m */; };
 		7A8384971C344057002CDD08 /* ItemStyles.m in Sources */ = {isa = PBXBuildFile; fileRef = 7A8384961C344057002CDD08 /* ItemStyles.m */; };
+		7AA7A9E61C3E209500F889DE /* BadgeView.m in Sources */ = {isa = PBXBuildFile; fileRef = 7AA7A9E51C3E209500F889DE /* BadgeView.m */; };
 		9BA2CEA11BB2579C00D18414 /* Launchboard.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 9BA2CEA01BB2579C00D18414 /* Launchboard.storyboard */; };
 		AC3C4A641A11F47200143C57 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = AC3C4A631A11F47200143C57 /* main.m */; };
 		AC3C4A671A11F47200143C57 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = AC3C4A661A11F47200143C57 /* AppDelegate.m */; };
@@ -30,6 +31,8 @@
 		7A8384921C343680002CDD08 /* BlurbNode.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = BlurbNode.m; sourceTree = "<group>"; };
 		7A8384951C344057002CDD08 /* ItemStyles.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ItemStyles.h; sourceTree = "<group>"; };
 		7A8384961C344057002CDD08 /* ItemStyles.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ItemStyles.m; sourceTree = "<group>"; };
+		7AA7A9E41C3E209500F889DE /* BadgeView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BadgeView.h; sourceTree = "<group>"; };
+		7AA7A9E51C3E209500F889DE /* BadgeView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = BadgeView.m; sourceTree = "<group>"; };
 		9BA2CEA01BB2579C00D18414 /* Launchboard.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; path = Launchboard.storyboard; sourceTree = "<group>"; };
 		AC3C4A5E1A11F47200143C57 /* Sample.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Sample.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		AC3C4A621A11F47200143C57 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -97,6 +100,8 @@
 				AC3C4A611A11F47200143C57 /* Supporting Files */,
 				25FDEC901BF31EE700CEB123 /* ItemNode.h */,
 				25FDEC911BF31EE700CEB123 /* ItemNode.m */,
+				7AA7A9E41C3E209500F889DE /* BadgeView.h */,
+				7AA7A9E51C3E209500F889DE /* BadgeView.m */,
 				7A8384951C344057002CDD08 /* ItemStyles.h */,
 				7A8384961C344057002CDD08 /* ItemStyles.m */,
 				7A83848C1C34359D002CDD08 /* ItemViewModel.h */,
@@ -252,6 +257,7 @@
 				AC3C4A6A1A11F47200143C57 /* ViewController.m in Sources */,
 				7A8384971C344057002CDD08 /* ItemStyles.m in Sources */,
 				FC3FCA801C2B1564009F6D6D /* PresentingViewController.m in Sources */,
+				7AA7A9E61C3E209500F889DE /* BadgeView.m in Sources */,
 				7A8384941C343680002CDD08 /* BlurbNode.m in Sources */,
 				7A83848E1C34359D002CDD08 /* ItemViewModel.m in Sources */,
 				AC3C4A671A11F47200143C57 /* AppDelegate.m in Sources */,

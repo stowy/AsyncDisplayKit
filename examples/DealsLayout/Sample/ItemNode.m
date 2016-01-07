@@ -12,6 +12,7 @@
 #import "ItemNode.h"
 #import "ItemStyles.h"
 #import <WebASDKImageManager/WebASDKImageManager.h>
+#import "BadgeView.h"
 
 const CGFloat kFixedLabelsAreaHeight = 96.0;
 const CGFloat kDesignWidth = 320.0;
@@ -34,7 +35,7 @@ const CGFloat kSoldOutGBHeight = 50.0;
 @property (nonatomic, strong) ASTextNode *soldOutLabelFlat;
 @property (nonatomic, strong) ASDisplayNode *soldOutLabelBackground;
 @property (nonatomic, strong) ASDisplayNode *soldOutOverlay;
-@property (nonatomic, strong) ASTextNode *badge;
+@property (nonatomic, strong) ASDisplayNode *badge;
 
 @end
 
@@ -81,7 +82,9 @@ const CGFloat kSoldOutGBHeight = 50.0;
   self.finalPriceLabel = [[ASTextNode alloc] init];
   self.finalPriceLabel.maximumNumberOfLines = 1;
   
-  self.badge = [[ASTextNode alloc] init];
+  self.badge = [[ASDisplayNode alloc] initWithViewBlock:^UIView * _Nonnull{
+    return [[BadgeView alloc] init];
+  }];
   self.badge.backgroundColor = [ItemStyles badgeColor];
   self.badge.hidden = YES;
   self.badge.sizeRange = ASRelativeSizeRangeMake(ASRelativeSizeMake(ASRelativeDimensionMakeWithPercent(0), ASRelativeDimensionMakeWithPoints(kBadgeHeight)), ASRelativeSizeMake(ASRelativeDimensionMakeWithPercent(1), ASRelativeDimensionMakeWithPoints(kBadgeHeight)));
@@ -168,7 +171,8 @@ const CGFloat kSoldOutGBHeight = 50.0;
   
   BOOL hasBadge = self.viewModel.badgeText != nil;
   if (hasBadge) {
-    self.badge.attributedString = [[NSAttributedString alloc] initWithString:self.viewModel.badgeText attributes:[ItemStyles badgeStyle]];
+    UILabel *label = [(BadgeView *)self.badge.view badgeLabel];
+    label.attributedText = [[NSAttributedString alloc] initWithString:self.viewModel.badgeText attributes:[ItemStyles badgeStyle]];
   }
   self.badge.hidden = !hasBadge;
 }
@@ -292,6 +296,11 @@ const CGFloat kSoldOutGBHeight = 50.0;
   CGFloat scaledHeight = ceilf(scale * (kDesignHeight - kFixedLabelsAreaHeight)) + kFixedLabelsAreaHeight;
   
   return scaledHeight;
+}
+
+- (void)layout {
+  [super layout];
+  [self.badge.view sizeToFit];
 }
 
 
