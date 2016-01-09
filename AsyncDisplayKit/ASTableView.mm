@@ -13,6 +13,7 @@
 #import "ASChangeSetDataController.h"
 #import "ASCollectionViewLayoutController.h"
 #import "ASDelegateProxy.h"
+#import "ASDisplayNode+Beta.h"
 #import "ASDisplayNode+FrameworkPrivate.h"
 #import "ASInternalHelpers.h"
 #import "ASLayout.h"
@@ -85,7 +86,10 @@ static NSString * const kCellReuseIdentifier = @"_ASTableViewCell";
 - (instancetype)_initWithTableView:(ASTableView *)tableView;
 @end
 
-@interface ASTableView () <ASRangeControllerDataSource, ASRangeControllerDelegate, ASDataControllerSource, _ASTableViewCellDelegate, ASCellNodeLayoutDelegate, ASDelegateProxyInterceptor> {
+@interface ASTableView () <ASRangeControllerDataSource, ASRangeControllerDelegate,
+                           ASDataControllerSource,     _ASTableViewCellDelegate,
+                           ASCellNodeLayoutDelegate,    ASDelegateProxyInterceptor>
+{
   ASTableViewProxy *_proxyDataSource;
   ASTableViewProxy *_proxyDelegate;
 
@@ -117,6 +121,9 @@ static NSString * const kCellReuseIdentifier = @"_ASTableViewCell";
 // This also permits sharing logic with ASCollectionNode, as the superclass is not UIKit-controlled.
 @property (nonatomic, retain) ASTableNode *strongTableNode;
 
+// Always set, whether ASCollectionView is created directly or via ASCollectionNode.
+@property (nonatomic, weak)   ASTableNode *tableNode;
+
 @end
 
 @implementation ASTableView
@@ -139,7 +146,8 @@ static NSString * const kCellReuseIdentifier = @"_ASTableViewCell";
 {
   _layoutController = [[ASFlowLayoutController alloc] initWithScrollOption:ASFlowLayoutDirectionVertical];
   
-  _rangeController = [[ASRangeController alloc] init];
+  _rangeController = [ASDisplayNode shouldUseNewRenderingRange] ? [[ASRangeControllerBeta alloc] init]
+                                                                : [[ASRangeControllerStable alloc] init];
   _rangeController.layoutController = _layoutController;
   _rangeController.dataSource = self;
   _rangeController.delegate = self;
@@ -317,12 +325,12 @@ static NSString * const kCellReuseIdentifier = @"_ASTableViewCell";
 
 - (ASRangeTuningParameters)rangeTuningParameters
 {
-  return [self tuningParametersForRangeType:ASLayoutRangeTypeRender];
+  return [self tuningParametersForRangeType:ASLayoutRangeTypeDisplay];
 }
 
 - (void)setRangeTuningParameters:(ASRangeTuningParameters)tuningParameters
 {
-  [self setTuningParameters:tuningParameters forRangeType:ASLayoutRangeTypeRender];
+  [self setTuningParameters:tuningParameters forRangeType:ASLayoutRangeTypeDisplay];
 }
 
 - (ASCellNode *)nodeForRowAtIndexPath:(NSIndexPath *)indexPath
@@ -684,10 +692,20 @@ static NSString * const kCellReuseIdentifier = @"_ASTableViewCell";
   return [_dataController nodesAtIndexPaths:indexPaths];
 }
 
+- (ASDisplayNode *)rangeController:(ASRangeController *)rangeController nodeAtIndexPath:(NSIndexPath *)indexPath
+{
+  return [_dataController nodeAtIndexPath:indexPath];
+}
+
 - (CGSize)viewportSizeForRangeController:(ASRangeController *)rangeController
 {
   ASDisplayNodeAssertMainThread();
   return self.bounds.size;
+}
+
+- (ASInterfaceState)interfaceStateForRangeController:(ASRangeController *)rangeController
+{
+  return self.tableNode.interfaceState;
 }
 
 #pragma mark - ASRangeControllerDelegate
@@ -930,6 +948,27 @@ static NSString * const kCellReuseIdentifier = @"_ASTableViewCell";
     for (ASDisplayNode *node in section) {
       [node recursivelyClearFetchedData];
     }
+  }
+}
+
+#pragma mark - _ASDisplayView behavior substitutions
+// Need these to drive interfaceState so we know when we are visible, if not nested in another range-managing element.
+// Because our superclass is a true UIKit class, we cannot also subclass _ASDisplayView.
+- (void)willMoveToWindow:(UIWindow *)newWindow
+{
+  BOOL visible = (newWindow != nil);
+  ASDisplayNode *node = self.tableNode;
+  if (visible && !node.inHierarchy) {
+    [node __enterHierarchy];
+  }
+}
+
+- (void)didMoveToWindow
+{
+  BOOL visible = (self.window != nil);
+  ASDisplayNode *node = self.tableNode;
+  if (!visible && node.inHierarchy) {
+    [node __exitHierarchy];
   }
 }
 

@@ -14,6 +14,7 @@
 #import "ASCollectionViewLayoutController.h"
 #import "ASCollectionViewFlowLayoutInspector.h"
 #import "ASDisplayNode+FrameworkPrivate.h"
+#import "ASDisplayNode+Beta.h"
 #import "ASInternalHelpers.h"
 #import "ASRangeController.h"
 #import "UICollectionViewLayout+ASConvenience.h"
@@ -104,7 +105,10 @@ static NSString * const kCellReuseIdentifier = @"_ASCollectionViewCell";
 // We create a node so that logic related to appearance, memory management, etc can be located there
 // for both the node-based and view-based version of the table.
 // This also permits sharing logic with ASTableNode, as the superclass is not UIKit-controlled.
-@property (nonatomic, retain) ASCollectionNode *strongCollectionNode;
+@property (nonatomic, strong) ASCollectionNode *strongCollectionNode;
+
+// Always set, whether ASCollectionView is created directly or via ASCollectionNode.
+@property (nonatomic, weak)   ASCollectionNode *collectionNode;
 
 @end
 
@@ -150,9 +154,12 @@ static NSString * const kCellReuseIdentifier = @"_ASCollectionViewCell";
     self.strongCollectionNode = collectionNode;
   }
   
-  _layoutController = [[ASCollectionViewLayoutController alloc] initWithCollectionView:self];
+  _layoutController = [ASDisplayNode shouldUseNewRenderingRange] ?
+                                  [[ASCollectionViewLayoutControllerBeta alloc] initWithCollectionView:self] :
+                                  [[ASCollectionViewLayoutControllerStable alloc] initWithCollectionView:self];
   
-  _rangeController = [[ASRangeController alloc] init];
+  _rangeController = [ASDisplayNode shouldUseNewRenderingRange] ? [[ASRangeControllerBeta alloc] init]
+                                                                : [[ASRangeControllerStable alloc] init];
   _rangeController.dataSource = self;
   _rangeController.delegate = self;
   _rangeController.layoutController = _layoutController;
@@ -217,8 +224,7 @@ static NSString * const kCellReuseIdentifier = @"_ASCollectionViewCell";
   if (_flowLayoutInspector == nil) {
     UICollectionViewFlowLayout *layout = (UICollectionViewFlowLayout *)self.collectionViewLayout;
     ASDisplayNodeAssertNotNil(layout, @"Collection view layout must be a flow layout to use the built-in inspector");
-    _flowLayoutInspector = [[ASCollectionViewFlowLayoutInspector alloc] initWithCollectionView:self
-                                                                                    flowLayout:layout];
+    _flowLayoutInspector = [[ASCollectionViewFlowLayoutInspector alloc] initWithCollectionView:self flowLayout:layout];
   }
   return _flowLayoutInspector;
 }
@@ -319,22 +325,23 @@ static NSString * const kCellReuseIdentifier = @"_ASCollectionViewCell";
 
 - (void)setTuningParameters:(ASRangeTuningParameters)tuningParameters forRangeType:(ASLayoutRangeType)rangeType
 {
-  [_layoutController setTuningParameters:tuningParameters forRangeType:rangeType];
+  [_collectionNode setTuningParameters:tuningParameters forRangeType:rangeType];
 }
 
 - (ASRangeTuningParameters)tuningParametersForRangeType:(ASLayoutRangeType)rangeType
 {
-  return [_layoutController tuningParametersForRangeType:rangeType];
+  return [_collectionNode tuningParametersForRangeType:rangeType];
 }
 
+// These deprecated methods harken back from a time where only one range type existed.
 - (ASRangeTuningParameters)rangeTuningParameters
 {
-  return [self tuningParametersForRangeType:ASLayoutRangeTypeRender];
+  return [self tuningParametersForRangeType:ASLayoutRangeTypeDisplay];
 }
 
 - (void)setRangeTuningParameters:(ASRangeTuningParameters)tuningParameters
 {
-  [self setTuningParameters:tuningParameters forRangeType:ASLayoutRangeTypeRender];
+  [self setTuningParameters:tuningParameters forRangeType:ASLayoutRangeTypeDisplay];
 }
 
 - (CGSize)calculatedSizeForNodeAtIndexPath:(NSIndexPath *)indexPath
@@ -758,6 +765,11 @@ static NSString * const kCellReuseIdentifier = @"_ASCollectionViewCell";
 
 #pragma mark - ASRangeControllerDataSource
 
+- (ASRangeController *)rangeController
+{
+  return _rangeController;
+}
+
 - (NSArray *)visibleNodeIndexPathsForRangeController:(ASRangeController *)rangeController
 {
   ASDisplayNodeAssertMainThread();
@@ -770,9 +782,19 @@ static NSString * const kCellReuseIdentifier = @"_ASCollectionViewCell";
   return self.bounds.size;
 }
 
+- (ASInterfaceState)interfaceStateForRangeController:(ASRangeController *)rangeController
+{
+  return self.collectionNode.interfaceState;
+}
+
 - (NSArray *)rangeController:(ASRangeController *)rangeController nodesAtIndexPaths:(NSArray *)indexPaths
 {
   return [_dataController nodesAtIndexPaths:indexPaths];
+}
+
+- (ASDisplayNode *)rangeController:(ASRangeController *)rangeController nodeAtIndexPath:(NSIndexPath *)indexPath
+{
+  return [_dataController nodeAtIndexPath:indexPath];
 }
 
 #pragma mark - ASRangeControllerDelegate
@@ -924,6 +946,27 @@ static NSString * const kCellReuseIdentifier = @"_ASCollectionViewCell";
     for (ASDisplayNode *node in section) {
       [node exitInterfaceState:ASInterfaceStateFetchData];
     }
+  }
+}
+
+#pragma mark - _ASDisplayView behavior substitutions
+// Need these to drive interfaceState so we know when we are visible, if not nested in another range-managing element.
+// Because our superclass is a true UIKit class, we cannot also subclass _ASDisplayView.
+- (void)willMoveToWindow:(UIWindow *)newWindow
+{
+  BOOL visible = (newWindow != nil);
+  ASDisplayNode *node = self.collectionNode;
+  if (visible && !node.inHierarchy) {
+    [node __enterHierarchy];
+  }
+}
+
+- (void)didMoveToWindow
+{
+  BOOL visible = (self.window != nil);
+  ASDisplayNode *node = self.collectionNode;
+  if (!visible && node.inHierarchy) {
+    [node __exitHierarchy];
   }
 }
 
