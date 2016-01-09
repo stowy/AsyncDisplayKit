@@ -192,6 +192,7 @@ const CGFloat kSoldOutGBHeight = 50.0;
   BOOL hasBadge = self.viewModel.badgeText != nil;
   if (hasBadge) {
     self.badge.attributedString = [[NSAttributedString alloc] initWithString:self.viewModel.badgeText attributes:[ItemStyles badgeStyle]];
+    self.badge.backgroundColor = [ItemStyles badgeColor];
   }
   self.badge.hidden = !hasBadge;
 }
