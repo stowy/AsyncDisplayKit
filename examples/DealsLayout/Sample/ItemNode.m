@@ -58,44 +58,67 @@ const CGFloat kSoldOutGBHeight = 50.0;
   return [UIApplication sharedApplication].userInterfaceLayoutDirection == UIUserInterfaceLayoutDirectionRightToLeft;
 }
 
++ (UIImage *)catFace {
+    static UIImage *__catFace = nil;
+    if (!__catFace) {
+      __catFace = [UIImage imageNamed:@"cat_face"];
+    }
+    return __catFace;
+}
+
 - (void)setup {
   self.dealImageView = [[ASNetworkImageNode alloc] initWithWebImage];
   self.dealImageView.delegate = self;
   self.dealImageView.placeholderEnabled = YES;
-  self.dealImageView.defaultImage = [UIImage imageNamed:@"cat_face"];
+  self.dealImageView.defaultImage = [ItemNode catFace];
   self.dealImageView.contentMode = UIViewContentModeScaleAspectFit;
   self.dealImageView.placeholderFadeDuration = 0.3;
+  self.dealImageView.layerBacked = YES;
   
   self.titleLabel = [[ASTextNode alloc] init];
   self.titleLabel.maximumNumberOfLines = 2;
   self.titleLabel.alignSelf = ASStackLayoutAlignSelfStart;
   self.titleLabel.flexGrow = YES;
+  self.titleLabel.layerBacked = YES;
   
   self.firstInfoLabel = [[ASTextNode alloc] init];
   self.firstInfoLabel.maximumNumberOfLines = 1;
+  self.firstInfoLabel.layerBacked = YES;
+  
   self.secondInfoLabel = [[ASTextNode alloc] init];
   self.secondInfoLabel.maximumNumberOfLines = 1;
+  self.secondInfoLabel.layerBacked = YES;
+  
   self.distanceLabel = [[ASTextNode alloc] init];
   self.distanceLabel.maximumNumberOfLines = 1;
+  self.distanceLabel.layerBacked = YES;
+  
   self.originalPriceLabel = [[ASTextNode alloc] init];
   self.originalPriceLabel.maximumNumberOfLines = 1;
+  self.originalPriceLabel.layerBacked = YES;
+  
   self.finalPriceLabel = [[ASTextNode alloc] init];
   self.finalPriceLabel.maximumNumberOfLines = 1;
+  self.finalPriceLabel.layerBacked = YES;
   
   self.badge = [[ASTextNode alloc] init];
   self.badge.hidden = YES;
   self.badge.sizeRange = ASRelativeSizeRangeMake(ASRelativeSizeMake(ASRelativeDimensionMakeWithPercent(0), ASRelativeDimensionMakeWithPoints(kBadgeHeight)), ASRelativeSizeMake(ASRelativeDimensionMakeWithPercent(1), ASRelativeDimensionMakeWithPoints(kBadgeHeight)));
+  self.badge.layerBacked = YES;
   
   self.soldOutLabelFlat = [[ASTextNode alloc] init];
+  self.soldOutLabelFlat.layerBacked = YES;
 
   self.soldOutLabelBackground = [[ASDisplayNode alloc] init];
   self.soldOutLabelBackground.sizeRange = ASRelativeSizeRangeMake(ASRelativeSizeMake(ASRelativeDimensionMakeWithPercent(1), ASRelativeDimensionMakeWithPoints(kSoldOutGBHeight)), ASRelativeSizeMake(ASRelativeDimensionMakeWithPercent(1), ASRelativeDimensionMakeWithPoints(kSoldOutGBHeight)));
   self.soldOutLabelBackground.backgroundColor = [[UIColor whiteColor] colorWithAlphaComponent:0.9];
   self.soldOutLabelBackground.flexGrow = YES;
+  self.soldOutLabelBackground.layerBacked = YES;
   
   self.soldOutOverlay = [[ASDisplayNode alloc] init];
   self.soldOutOverlay.flexGrow = YES;
   self.soldOutOverlay.backgroundColor = [[UIColor whiteColor] colorWithAlphaComponent:0.5];
+  self.soldOutOverlay.layerBacked = YES;
   
   [self addSubnode:self.dealImageView];
   [self addSubnode:self.titleLabel];
@@ -277,10 +300,6 @@ const CGFloat kSoldOutGBHeight = 50.0;
   return soldOutLabelOverBackground;
 }
 
-- (void)layout {
-  [super layout];
-  [self.badge.view sizeToFit];
-}
 
 + (CGSize)sizeForWidth:(CGFloat)width {
   CGFloat height = [self scaledHeightForPreferredSize:[self preferredViewSize] scaledWidth:width];
