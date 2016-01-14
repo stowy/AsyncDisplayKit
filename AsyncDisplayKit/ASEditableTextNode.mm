@@ -12,7 +12,7 @@
 
 #import "ASDisplayNode+Subclasses.h"
 #import "ASEqualityHelpers.h"
-#import "ASTextNodeTextKitHelpers.h"
+#import "ASTextKitHelpers.h"
 #import "ASTextNodeWordKerner.h"
 #import "ASThread.h"
 
@@ -124,7 +124,6 @@
       textView.opaque = NO;
     }
     textView.textContainerInset = self.textContainerInset;
-    textView.clipsToBounds = NO; // We don't want selection handles cut off.
   };
 
   // Create and configure the placeholder text view.

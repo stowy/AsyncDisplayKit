@@ -22,7 +22,7 @@ pod 'AsyncDisplayKit'
 
 (ASDK can also be used as a regular static library:  Copy the project to your
 codebase manually, adding `AsyncDisplayKit.xcodeproj` to your workspace.  Add
-`libAsyncDisplayKit.a`, AssetsLibrary, and Photos to the "Link Binary With
+`libAsyncDisplayKit.a`, MapKit, AssetsLibrary, and Photos to the "Link Binary With
 Libraries" build phase.  Include `-lc++ -ObjC` in your project linker flags.)
 
 Import the framework header, or create an [Objective-C bridging
@@ -55,6 +55,22 @@ dispatch_async(_backgroundQueue, ^{
     [self.view addSubview:node.view];
   });
 });
+```
+
+In Swift:
+
+```swift
+dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0) {
+  let node = ASTextNode()
+  node.attributedString = NSAttributedString(string: "hello")
+  node.measure(CGSize(width: screenWidth, height: CGFloat.max))
+  node.frame = CGRect(origin: CGPointZero, size: node.calculatedSize)
+            
+  // self.view isn't a node, so we can only use it on the main thread
+  dispatch_async(dispatch_get_main_queue()) {
+   self.view.addSubview(node.view)
+  }
+}
 ```
 
 AsyncDisplayKit at a glance:

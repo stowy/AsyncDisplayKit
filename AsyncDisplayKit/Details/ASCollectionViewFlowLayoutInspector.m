@@ -9,7 +9,6 @@
 #import <UIKit/UIKit.h>
 
 #import "ASCollectionViewFlowLayoutInspector.h"
-
 #import "ASCollectionView.h"
 #import "ASAssert.h"
 #import "ASEqualityHelpers.h"
@@ -36,7 +35,7 @@
   return self;
 }
 
-- (void)didChangeCollectionViewDelegate:(id<ASCollectionViewDelegate>)delegate;
+- (void)didChangeCollectionViewDelegate:(id<ASCollectionDelegate>)delegate;
 {
   if (delegate == nil) {
     _delegateImplementsReferenceSizeForHeader = NO;
@@ -48,6 +47,12 @@
 }
 
 #pragma mark - ASCollectionViewLayoutInspecting
+
+- (ASSizeRange)collectionView:(ASCollectionView *)collectionView constrainedSizeForNodeAtIndexPath:(NSIndexPath *)indexPath
+{
+  // TODO: Provide constrained size for flow layout item nodes
+  return ASSizeRangeMake(CGSizeZero, CGSizeZero);
+}
 
 - (ASSizeRange)collectionView:(ASCollectionView *)collectionView constrainedSizeForSupplementaryNodeOfKind:(NSString *)kind atIndexPath:(NSIndexPath *)indexPath
 {

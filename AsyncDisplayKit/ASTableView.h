@@ -7,28 +7,33 @@
  */
 
 #import <UIKit/UIKit.h>
-
 #import <AsyncDisplayKit/ASRangeController.h>
 #import <AsyncDisplayKit/ASTableViewProtocols.h>
 #import <AsyncDisplayKit/ASBaseDefines.h>
 #import <AsyncDisplayKit/ASBatchContext.h>
 
+NS_ASSUME_NONNULL_BEGIN
 
 @class ASCellNode;
-@protocol ASTableViewDataSource;
-@protocol ASTableViewDelegate;
-
+@protocol ASTableDataSource;
+@protocol ASTableDelegate;
 
 /**
- * Node-based table view.
+ * Asynchronous UITableView with Intelligent Preloading capabilities.
  *
- * ASTableView is a version of UITableView that uses nodes -- specifically, ASCellNode subclasses -- with asynchronous
- * pre-rendering instead of synchronously loading UITableViewCells.
+ * ASTableNode is recommended over ASTableView.  This class is provided for adoption convenience.
+ *
+ * ASTableView is a true subclass of UITableView, meaning it is pointer-compatible with code that
+ * currently uses UITableView
+ *
+ * The main difference is that asyncDataSource expects -nodeForRowAtIndexPath, an ASCellNode, and
+ * the heightForRowAtIndexPath: method is eliminated (as are the performance problems caused by it).
+ * This is made possible because ASCellNodes can calculate their own size, and preload ahead of time.
  */
 @interface ASTableView : UITableView
 
-@property (nonatomic, weak) id<ASTableViewDelegate> asyncDelegate;      // must not be nil
-@property (nonatomic, weak) id<ASTableViewDataSource> asyncDataSource;
+@property (nonatomic, weak) id<ASTableDelegate>   asyncDelegate;
+@property (nonatomic, weak) id<ASTableDataSource> asyncDataSource;
 
 /**
  * Initializer.
@@ -84,7 +89,7 @@
  * the main thread.
  * @warning This method is substantially more expensive than UITableView's version.
  */
--(void)reloadDataWithCompletion:(void (^)())completion;
+-(void)reloadDataWithCompletion:(void (^ _Nullable)())completion;
 
 /**
  * Reload everything from scratch, destroying the working range and all cached nodes.
@@ -128,7 +133,7 @@
  *                    Boolean parameter that contains the value YES if all of the related animations completed successfully or
  *                    NO if they were interrupted. This parameter may be nil. If supplied, the block is run on the main thread.
  */
-- (void)endUpdatesAnimated:(BOOL)animated completion:(void (^)(BOOL completed))completion;
+- (void)endUpdatesAnimated:(BOOL)animated completion:(void (^ _Nullable)(BOOL completed))completion;
 
 /**
  * Inserts one or more sections, with an option to animate the insertion.
@@ -188,7 +193,7 @@
  * @discussion This method must be called from the main thread. The asyncDataSource must be updated to reflect the changes
  * before this method is called.
  */
-- (void)insertRowsAtIndexPaths:(NSArray *)indexPaths withRowAnimation:(UITableViewRowAnimation)animation;
+- (void)insertRowsAtIndexPaths:(NSArray<NSIndexPath *> *)indexPaths withRowAnimation:(UITableViewRowAnimation)animation;
 
 /**
  * Deletes the rows specified by an array of index paths, with an option to animate the deletion.
@@ -200,7 +205,7 @@
  * @discussion This method must be called from the main thread. The asyncDataSource must be updated to reflect the changes
  * before this method is called.
  */
-- (void)deleteRowsAtIndexPaths:(NSArray *)indexPaths withRowAnimation:(UITableViewRowAnimation)animation;
+- (void)deleteRowsAtIndexPaths:(NSArray<NSIndexPath *> *)indexPaths withRowAnimation:(UITableViewRowAnimation)animation;
 
 /**
  * Reloads the specified rows using a given animation effect.
@@ -212,7 +217,7 @@
  * @discussion This method must be called from the main thread. The asyncDataSource must be updated to reflect the changes
  * before this method is called.
  */
-- (void)reloadRowsAtIndexPaths:(NSArray *)indexPaths withRowAnimation:(UITableViewRowAnimation)animation;
+- (void)reloadRowsAtIndexPaths:(NSArray<NSIndexPath *> *)indexPaths withRowAnimation:(UITableViewRowAnimation)animation;
 
 /**
  * Moves the row at a specified location to a destination location.
@@ -242,14 +247,14 @@
  *
  * @returns an indexPath for this cellNode
  */
-- (NSIndexPath *)indexPathForNode:(ASCellNode *)cellNode;
+- (nullable NSIndexPath *)indexPathForNode:(ASCellNode *)cellNode;
 
 /**
  * Similar to -visibleCells.
  *
  * @returns an array containing the nodes being displayed on screen.
  */
-- (NSArray *)visibleNodes;
+- (NSArray<ASDisplayNode *> *)visibleNodes;
 
 /**
  * YES to automatically adjust the contentOffset when cells are inserted or deleted "before"
@@ -280,7 +285,7 @@
 /**
  * This is a node-based UITableViewDataSource.
  */
-@protocol ASTableViewDataSource <ASCommonTableViewDataSource, NSObject>
+@protocol ASTableDataSource <ASCommonTableViewDataSource, NSObject>
 
 /**
  * Similar to -tableView:cellForRowAtIndexPath:.
@@ -317,6 +322,8 @@
 
 @end
 
+@protocol ASTableViewDataSource <ASTableDataSource>
+@end
 
 /**
  * This is a node-based UITableViewDelegate.
@@ -324,12 +331,22 @@
  * Note that -tableView:heightForRowAtIndexPath: has been removed; instead, your custom ASCellNode subclasses are
  * responsible for deciding their preferred onscreen height in -calculateSizeThatFits:.
  */
-@protocol ASTableViewDelegate <ASCommonTableViewDelegate, NSObject>
+@protocol ASTableDelegate <ASCommonTableViewDelegate, NSObject>
 
 @optional
 
 - (void)tableView:(ASTableView *)tableView willDisplayNodeForRowAtIndexPath:(NSIndexPath *)indexPath;
-- (void)tableView:(ASTableView *)tableView didEndDisplayingNodeForRowAtIndexPath:(NSIndexPath*)indexPath;
+
+/**
+ * Informs the delegate that the table view did remove the provided node from the view hierarchy.
+ * This may be caused by the node scrolling out of view, or by deleting the row
+ * or its containing section with @c deleteRowsAtIndexPaths:withRowAnimation: or @c deleteSections:withRowAnimation: .
+ *
+ * @param tableView The sender.
+ * @param node The node which was removed from the view hierarchy.
+ * @param indexPath The index path at which the node was located before the removal.
+ */
+- (void)tableView:(ASTableView *)tableView didEndDisplayingNode:(ASCellNode *)node forRowAtIndexPath:(NSIndexPath *)indexPath;
 
 /**
  * Receive a message that the tableView is near the end of its data set and more data should be fetched if necessary.
@@ -358,4 +375,17 @@
  */
 - (BOOL)shouldBatchFetchForTableView:(ASTableView *)tableView;
 
+/**
+ * Informs the delegate that the table view did remove the node which was previously
+ * at the given index path from the view hierarchy.
+ *
+ * This method is deprecated. Use @c tableView:didEndDisplayingNode:forRowAtIndexPath: instead.
+ */
+- (void)tableView:(ASTableView *)tableView didEndDisplayingNodeForRowAtIndexPath:(NSIndexPath *)indexPath ASDISPLAYNODE_DEPRECATED;
+
 @end
+
+@protocol ASTableViewDelegate <ASTableDelegate>
+@end
+
+NS_ASSUME_NONNULL_END

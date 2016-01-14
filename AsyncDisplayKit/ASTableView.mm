@@ -6,104 +6,27 @@
  * of patent rights can be found in the PATENTS file in the same directory.
  */
 
-#import "ASTableView.h"
 #import "ASTableViewInternal.h"
 
 #import "ASAssert.h"
+#import "ASBatchFetching.h"
 #import "ASChangeSetDataController.h"
 #import "ASCollectionViewLayoutController.h"
-#import "ASLayoutController.h"
-#import "ASRangeController.h"
-#import "ASBatchFetching.h"
+#import "ASDelegateProxy.h"
+#import "ASDisplayNode+Beta.h"
+#import "ASDisplayNode+FrameworkPrivate.h"
 #import "ASInternalHelpers.h"
 #import "ASLayout.h"
+#import "ASLayoutController.h"
+#import "ASRangeController.h"
+#import "_ASDisplayLayer.h"
 
-// FIXME: Temporary nonsense import until method names are finalized and exposed
-#import "ASDisplayNode+Subclasses.h"
+#import <CoreFoundation/CoreFoundation.h>
+
+static NSString * const kCellReuseIdentifier = @"_ASTableViewCell";
 
 //#define LOG(...) NSLog(__VA_ARGS__)
 #define LOG(...)
-
-#pragma mark -
-#pragma mark Proxying.
-
-/**
- * ASTableView intercepts and/or overrides a few of UITableView's critical data source and delegate methods.
- *
- * Any selector included in this function *MUST* be implemented by ASTableView.
- */
-static BOOL _isInterceptedSelector(SEL sel)
-{
-  return (
-          // handled by ASTableView node<->cell machinery
-          sel == @selector(tableView:cellForRowAtIndexPath:) ||
-          sel == @selector(tableView:heightForRowAtIndexPath:) ||
-
-          // handled by ASRangeController
-          sel == @selector(numberOfSectionsInTableView:) ||
-          sel == @selector(tableView:numberOfRowsInSection:) ||
-
-          // used for ASRangeController visibility updates
-          sel == @selector(tableView:willDisplayCell:forRowAtIndexPath:) ||
-          sel == @selector(tableView:didEndDisplayingCell:forRowAtIndexPath:) ||
-
-          // used for batch fetching API
-          sel == @selector(scrollViewWillEndDragging:withVelocity:targetContentOffset:)
-          );
-}
-
-
-/**
- * Stand-in for UITableViewDataSource and UITableViewDelegate.  Any method calls we intercept are routed to ASTableView;
- * everything else leaves AsyncDisplayKit safely and arrives at the original intended data source and delegate.
- */
-@interface _ASTableViewProxy : NSProxy
-- (instancetype)initWithTarget:(id<NSObject>)target interceptor:(ASTableView *)interceptor;
-@end
-
-@implementation _ASTableViewProxy {
-  id<NSObject> __weak _target;
-  ASTableView * __weak _interceptor;
-}
-
-- (instancetype)initWithTarget:(id<NSObject>)target interceptor:(ASTableView *)interceptor
-{
-  // -[NSProxy init] is undefined
-  if (!self) {
-    return nil;
-  }
-
-  ASDisplayNodeAssert(target, @"target must not be nil");
-  ASDisplayNodeAssert(interceptor, @"interceptor must not be nil");
-
-  _target = target;
-  _interceptor = interceptor;
-
-  return self;
-}
-
-- (BOOL)respondsToSelector:(SEL)aSelector
-{
-  ASDisplayNodeAssert(_target, @"target must not be nil"); // catch weak ref's being nilled early
-  ASDisplayNodeAssert(_interceptor, @"interceptor must not be nil");
-
-  return (_isInterceptedSelector(aSelector) || [_target respondsToSelector:aSelector]);
-}
-
-- (id)forwardingTargetForSelector:(SEL)aSelector
-{
-  ASDisplayNodeAssert(_target, @"target must not be nil"); // catch weak ref's being nilled early
-  ASDisplayNodeAssert(_interceptor, @"interceptor must not be nil");
-
-  if (_isInterceptedSelector(aSelector)) {
-    return _interceptor;
-  }
-
-  return [_target respondsToSelector:aSelector] ? _target : nil;
-}
-
-@end
-
 
 #pragma mark -
 #pragma mark ASCellNode<->UITableViewCell bridging.
@@ -156,13 +79,19 @@ static BOOL _isInterceptedSelector(SEL sel)
 
 @end
 
-
 #pragma mark -
 #pragma mark ASTableView
 
-@interface ASTableView () <ASRangeControllerDataSource, ASRangeControllerDelegate, ASDataControllerSource, _ASTableViewCellDelegate, ASCellNodeLayoutDelegate> {
-  _ASTableViewProxy *_proxyDataSource;
-  _ASTableViewProxy *_proxyDelegate;
+@interface ASTableNode ()
+- (instancetype)_initWithTableView:(ASTableView *)tableView;
+@end
+
+@interface ASTableView () <ASRangeControllerDataSource, ASRangeControllerDelegate,
+                           ASDataControllerSource,     _ASTableViewCellDelegate,
+                           ASCellNodeLayoutDelegate,    ASDelegateProxyInterceptor>
+{
+  ASTableViewProxy *_proxyDataSource;
+  ASTableViewProxy *_proxyDelegate;
 
   ASFlowLayoutController *_layoutController;
 
@@ -179,14 +108,31 @@ static BOOL _isInterceptedSelector(SEL sel)
 
   CGFloat _nodesConstrainedWidth;
   BOOL _ignoreNodesConstrainedWidthChange;
+  BOOL _queuedNodeHeightUpdate;
+  BOOL _isDeallocating;
 }
 
 @property (atomic, assign) BOOL asyncDataSourceLocked;
 @property (nonatomic, retain, readwrite) ASDataController *dataController;
 
+// Used only when ASTableView is created directly rather than through ASTableNode.
+// We create a node so that logic related to appearance, memory management, etc can be located there
+// for both the node-based and view-based version of the table.
+// This also permits sharing logic with ASCollectionNode, as the superclass is not UIKit-controlled.
+@property (nonatomic, retain) ASTableNode *strongTableNode;
+
+// Always set, whether ASCollectionView is created directly or via ASCollectionNode.
+@property (nonatomic, weak)   ASTableNode *tableNode;
+
 @end
 
 @implementation ASTableView
+
+// Using _ASDisplayLayer ensures things like -layout are properly forwarded to ASTableNode.
++ (Class)layerClass
+{
+  return [_ASDisplayLayer class];
+}
 
 + (Class)dataControllerClass
 {
@@ -196,22 +142,23 @@ static BOOL _isInterceptedSelector(SEL sel)
 #pragma mark -
 #pragma mark Lifecycle
 
-- (void)configureWithDataControllerClass:(Class)dataControllerClass asyncDataFetching:(BOOL)asyncDataFetching
+- (void)configureWithDataControllerClass:(Class)dataControllerClass
 {
   _layoutController = [[ASFlowLayoutController alloc] initWithScrollOption:ASFlowLayoutDirectionVertical];
   
-  _rangeController = [[ASRangeController alloc] init];
+  _rangeController = [ASDisplayNode shouldUseNewRenderingRange] ? [[ASRangeControllerBeta alloc] init]
+                                                                : [[ASRangeControllerStable alloc] init];
   _rangeController.layoutController = _layoutController;
   _rangeController.dataSource = self;
   _rangeController.delegate = self;
   
-  _dataController = [[dataControllerClass alloc] initWithAsyncDataFetching:asyncDataFetching];
+  _dataController = [[dataControllerClass alloc] initWithAsyncDataFetching:NO];
   _dataController.dataSource = self;
   _dataController.delegate = _rangeController;
   
   _layoutController.dataSource = _dataController;
 
-  _asyncDataFetchingEnabled = asyncDataFetching;
+  _asyncDataFetchingEnabled = NO;
   _asyncDataSourceLocked = NO;
 
   _leadingScreensForBatching = 1.0;
@@ -223,48 +170,63 @@ static BOOL _isInterceptedSelector(SEL sel)
   // If the initial size is 0, expect a size change very soon which is part of the initial configuration
   // and should not trigger a relayout.
   _ignoreNodesConstrainedWidthChange = (_nodesConstrainedWidth == 0);
+  
+  _proxyDelegate = [[ASTableViewProxy alloc] initWithTarget:nil interceptor:self];
+  super.delegate = (id<UITableViewDelegate>)_proxyDelegate;
+  
+  _proxyDataSource = [[ASTableViewProxy alloc] initWithTarget:nil interceptor:self];
+  super.dataSource = (id<UITableViewDataSource>)_proxyDataSource;
+
+  [self registerClass:_ASTableViewCell.class forCellReuseIdentifier:kCellReuseIdentifier];
 }
 
 - (instancetype)initWithFrame:(CGRect)frame style:(UITableViewStyle)style
 {
-  return [self initWithFrame:frame style:style asyncDataFetching:NO];
+  return [self _initWithFrame:frame style:style dataControllerClass:nil ownedByNode:NO];
 }
 
+// FIXME: This method is deprecated and will probably be removed in or shortly after 2.0.
 - (instancetype)initWithFrame:(CGRect)frame style:(UITableViewStyle)style asyncDataFetching:(BOOL)asyncDataFetchingEnabled
 {
-  return [self initWithFrame:frame style:style dataControllerClass:[self.class dataControllerClass] asyncDataFetching:asyncDataFetchingEnabled];
+  return [self _initWithFrame:frame style:style dataControllerClass:nil ownedByNode:NO];
 }
 
-- (instancetype)initWithFrame:(CGRect)frame style:(UITableViewStyle)style dataControllerClass:(Class)dataControllerClass asyncDataFetching:(BOOL)asyncDataFetchingEnabled
+- (instancetype)_initWithFrame:(CGRect)frame style:(UITableViewStyle)style dataControllerClass:(Class)dataControllerClass ownedByNode:(BOOL)ownedByNode
 {
-  if (!(self = [super initWithFrame:frame style:style]))
+  if (!(self = [super initWithFrame:frame style:style])) {
     return nil;
-
-  // FIXME: asyncDataFetching is currently unreliable for some use cases.
-  // https://github.com/facebook/AsyncDisplayKit/issues/385
-  asyncDataFetchingEnabled = NO;
+  }
   
-  [self configureWithDataControllerClass:dataControllerClass asyncDataFetching:asyncDataFetchingEnabled];
+  if (!dataControllerClass) {
+    dataControllerClass = [[self class] dataControllerClass];
+  }
+  
+  [self configureWithDataControllerClass:dataControllerClass];
+  
+  if (!ownedByNode) {
+    // See commentary at the definition of .strongTableNode for why we create an ASTableNode.
+    // FIXME: The _view pointer of the node retains us, but the node will die immediately if we don't
+    // retain it.  At the moment there isn't a great solution to this, so we can't yet move our core
+    // logic to ASTableNode (required to have a shared superclass with ASCollection*).
+    ASTableNode *tableNode = nil; //[[ASTableNode alloc] _initWithTableView:self];
+    self.strongTableNode = tableNode;
+  }
   
   return self;
 }
 
 - (instancetype)initWithCoder:(NSCoder *)aDecoder
 {
-  if (!(self = [super initWithCoder:aDecoder]))
-    return nil;
-
-  [self configureWithDataControllerClass:[self.class dataControllerClass] asyncDataFetching:NO];
-
-  return self;
+  NSLog(@"Warning: AsyncDisplayKit is not designed to be used with Interface Builder.  Table properties set in IB will be lost.");
+  return [self initWithFrame:CGRectZero style:UITableViewStylePlain];
 }
 
 - (void)dealloc
 {
   // Sometimes the UIKit classes can call back to their delegate even during deallocation.
-  // This bug might be iOS 7-specific.
-  super.delegate  = nil;
-  super.dataSource = nil;
+  _isDeallocating = YES;
+  [self setAsyncDelegate:nil];
+  [self setAsyncDataSource:nil];
 }
 
 #pragma mark -
@@ -287,17 +249,19 @@ static BOOL _isInterceptedSelector(SEL sel)
   // Note: It's common to check if the value hasn't changed and short-circuit but we aren't doing that here to handle
   // the (common) case of nilling the asyncDataSource in the ViewController's dealloc. In this case our _asyncDataSource
   // will return as nil (ARC magic) even though the _proxyDataSource still exists. It's really important to nil out
-  // super.dataSource in this case because calls to _ASTableViewProxy will start failing and cause crashes.
-
+  // super.dataSource in this case because calls to ASTableViewProxy will start failing and cause crashes.
+  
+  super.dataSource = nil;
+  
   if (asyncDataSource == nil) {
-    super.dataSource = nil;
     _asyncDataSource = nil;
-    _proxyDataSource = nil;
+    _proxyDataSource = _isDeallocating ? nil : [[ASTableViewProxy alloc] initWithTarget:nil interceptor:self];
   } else {
     _asyncDataSource = asyncDataSource;
-    _proxyDataSource = [[_ASTableViewProxy alloc] initWithTarget:_asyncDataSource interceptor:self];
-    super.dataSource = (id<UITableViewDataSource>)_proxyDataSource;
+    _proxyDataSource = [[ASTableViewProxy alloc] initWithTarget:_asyncDataSource interceptor:self];
   }
+  
+  super.dataSource = (id<UITableViewDataSource>)_proxyDataSource;
 }
 
 - (void)setAsyncDelegate:(id<ASTableViewDelegate>)asyncDelegate
@@ -305,24 +269,35 @@ static BOOL _isInterceptedSelector(SEL sel)
   // Note: It's common to check if the value hasn't changed and short-circuit but we aren't doing that here to handle
   // the (common) case of nilling the asyncDelegate in the ViewController's dealloc. In this case our _asyncDelegate
   // will return as nil (ARC magic) even though the _proxyDelegate still exists. It's really important to nil out
-  // super.delegate in this case because calls to _ASTableViewProxy will start failing and cause crashes.
+  // super.delegate in this case because calls to ASTableViewProxy will start failing and cause crashes.
+  
+  // Order is important here, the asyncDelegate must be callable while nilling super.delegate to avoid random crashes
+  // in UIScrollViewAccessibility.
 
+  super.delegate = nil;
+  
   if (asyncDelegate == nil) {
-    // order is important here, the delegate must be callable while nilling super.delegate to avoid random crashes
-    // in UIScrollViewAccessibility.
-    super.delegate = nil;
     _asyncDelegate = nil;
-    _proxyDelegate = nil; 
+    _proxyDelegate = _isDeallocating ? nil : [[ASTableViewProxy alloc] initWithTarget:nil interceptor:self];
   } else {
     _asyncDelegate = asyncDelegate;
-    _proxyDelegate = [[_ASTableViewProxy alloc] initWithTarget:asyncDelegate interceptor:self];
-    super.delegate = (id<UITableViewDelegate>)_proxyDelegate;
+    _proxyDelegate = [[ASTableViewProxy alloc] initWithTarget:_asyncDelegate interceptor:self];
+  }
+  
+  super.delegate = (id<UITableViewDelegate>)_proxyDelegate;
+}
+
+- (void)proxyTargetHasDeallocated:(ASDelegateProxy *)proxy
+{
+  if (proxy == _proxyDelegate) {
+    [self setAsyncDelegate:nil];
+  } else if (proxy == _proxyDataSource) {
+    [self setAsyncDataSource:nil];
   }
 }
 
 - (void)reloadDataWithCompletion:(void (^)())completion
 {
-  ASDisplayNodeAssert(self.asyncDelegate, @"ASTableView's asyncDelegate property must be set.");
   ASPerformBlockOnMainThread(^{
     [super reloadData];
   });
@@ -353,12 +328,17 @@ static BOOL _isInterceptedSelector(SEL sel)
 
 - (ASRangeTuningParameters)rangeTuningParameters
 {
-  return [self tuningParametersForRangeType:ASLayoutRangeTypeRender];
+  return [self tuningParametersForRangeType:ASLayoutRangeTypeDisplay];
 }
 
 - (void)setRangeTuningParameters:(ASRangeTuningParameters)tuningParameters
 {
-  [self setTuningParameters:tuningParameters forRangeType:ASLayoutRangeTypeRender];
+  [self setTuningParameters:tuningParameters forRangeType:ASLayoutRangeTypeDisplay];
+}
+
+- (NSArray<NSArray <ASCellNode *> *> *)completedNodes
+{
+  return [_dataController completedNodes];
 }
 
 - (ASCellNode *)nodeForRowAtIndexPath:(NSIndexPath *)indexPath
@@ -376,11 +356,14 @@ static BOOL _isInterceptedSelector(SEL sel)
   NSArray *indexPaths = [self indexPathsForVisibleRows];
   NSMutableArray *visibleNodes = [[NSMutableArray alloc] init];
 
-  [indexPaths enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
-    ASCellNode *visibleNode = [self nodeForRowAtIndexPath:obj];
-    [visibleNodes addObject:visibleNode];
-  }];
-
+  for (NSIndexPath *indexPath in indexPaths) {
+    ASCellNode *node = [self nodeForRowAtIndexPath:indexPath];
+    if (node) {
+      // It is possible for UITableView to return indexPaths before the node is completed.
+      [visibleNodes addObject:node];
+    }
+  }
+  
   return visibleNodes;
 }
 
@@ -526,15 +509,26 @@ static BOOL _isInterceptedSelector(SEL sel)
 #pragma mark -
 #pragma mark Intercepted selectors
 
+- (void)setTableHeaderView:(UIView *)tableHeaderView
+{
+  // Typically the view will be nil before setting it, but reset state if it is being re-hosted.
+  [self.tableHeaderView.asyncdisplaykit_node exitHierarchyState:ASHierarchyStateRangeManaged];
+  [super setTableHeaderView:tableHeaderView];
+  [self.tableHeaderView.asyncdisplaykit_node enterHierarchyState:ASHierarchyStateRangeManaged];
+}
+
+- (void)setTableFooterView:(UIView *)tableFooterView
+{
+  // Typically the view will be nil before setting it, but reset state if it is being re-hosted.
+  [self.tableFooterView.asyncdisplaykit_node exitHierarchyState:ASHierarchyStateRangeManaged];
+  [super setTableFooterView:tableFooterView];
+  [self.tableFooterView.asyncdisplaykit_node enterHierarchyState:ASHierarchyStateRangeManaged];
+}
+
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
 {
-  static NSString *reuseIdentifier = @"_ASTableViewCell";
-
-  _ASTableViewCell *cell = [self dequeueReusableCellWithIdentifier:reuseIdentifier];
-  if (!cell) {
-    cell = [[_ASTableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:reuseIdentifier];
-    cell.delegate = self;
-  }
+  _ASTableViewCell *cell = [self dequeueReusableCellWithIdentifier:kCellReuseIdentifier forIndexPath:indexPath];
+  cell.delegate = self;
 
   ASCellNode *node = [_dataController nodeAtIndexPath:indexPath];
   [_rangeController configureContentView:cell.contentView forCellNode:node];
@@ -592,7 +586,7 @@ static BOOL _isInterceptedSelector(SEL sel)
 
   ASCellNode *cellNode = [self nodeForRowAtIndexPath:indexPath];
   if (cellNode.neverShowPlaceholders) {
-    [cellNode recursivelyEnsureDisplay];
+    [cellNode recursivelyEnsureDisplaySynchronously:YES];
   }
 }
 
@@ -604,9 +598,18 @@ static BOOL _isInterceptedSelector(SEL sel)
 
   [_rangeController visibleNodeIndexPathsDidChangeWithScrollDirection:self.scrollDirection];
 
+  if ([_asyncDelegate respondsToSelector:@selector(tableView:didEndDisplayingNode:forRowAtIndexPath:)]) {
+    ASCellNode *node = ((_ASTableViewCell *)cell).node;
+    ASDisplayNodeAssertNotNil(node, @"Expected node associated with removed cell not to be nil.");
+    [_asyncDelegate tableView:self didEndDisplayingNode:node forRowAtIndexPath:indexPath];
+  }
+
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
   if ([_asyncDelegate respondsToSelector:@selector(tableView:didEndDisplayingNodeForRowAtIndexPath:)]) {
     [_asyncDelegate tableView:self didEndDisplayingNodeForRowAtIndexPath:indexPath];
   }
+#pragma clang diagnostic pop
 }
 
 
@@ -706,10 +709,20 @@ static BOOL _isInterceptedSelector(SEL sel)
   return [_dataController nodesAtIndexPaths:indexPaths];
 }
 
+- (ASDisplayNode *)rangeController:(ASRangeController *)rangeController nodeAtIndexPath:(NSIndexPath *)indexPath
+{
+  return [_dataController nodeAtIndexPath:indexPath];
+}
+
 - (CGSize)viewportSizeForRangeController:(ASRangeController *)rangeController
 {
   ASDisplayNodeAssertMainThread();
   return self.bounds.size;
+}
+
+- (ASInterfaceState)interfaceStateForRangeController:(ASRangeController *)rangeController
+{
+  return self.tableNode.interfaceState;
 }
 
 #pragma mark - ASRangeControllerDelegate
@@ -829,6 +842,8 @@ static BOOL _isInterceptedSelector(SEL sel)
 - (ASCellNode *)dataController:(ASDataController *)dataController nodeAtIndexPath:(NSIndexPath *)indexPath
 {
   ASCellNode *node = [_asyncDataSource tableView:self nodeForRowAtIndexPath:indexPath];
+  [node enterHierarchyState:ASHierarchyStateRangeManaged];
+  
   ASDisplayNodeAssert([node isKindOfClass:ASCellNode.class], @"invalid node class, expected ASCellNode");
   if (node.layoutDelegate == nil) {
     node.layoutDelegate = self;
@@ -909,10 +924,26 @@ static BOOL _isInterceptedSelector(SEL sel)
 
 #pragma mark - ASCellNodeLayoutDelegate
 
-- (void)nodeDidRelayout:(ASCellNode *)node
+- (void)nodeDidRelayout:(ASCellNode *)node sizeChanged:(BOOL)sizeChanged
 {
   ASDisplayNodeAssertMainThread();
-  // Cause UITableView to requery for the new height of this node
+
+  if (!sizeChanged || _queuedNodeHeightUpdate) {
+    return;
+  }
+
+  _queuedNodeHeightUpdate = YES;
+  [self performSelector:@selector(requeryNodeHeights)
+             withObject:nil
+             afterDelay:0
+                inModes:@[ NSRunLoopCommonModes ]];
+}
+
+// Cause UITableView to requery for the new height of this node
+- (void)requeryNodeHeights
+{
+  _queuedNodeHeightUpdate = NO;
+
   [super beginUpdates];
   [super endUpdates];
 }
@@ -934,6 +965,27 @@ static BOOL _isInterceptedSelector(SEL sel)
     for (ASDisplayNode *node in section) {
       [node recursivelyClearFetchedData];
     }
+  }
+}
+
+#pragma mark - _ASDisplayView behavior substitutions
+// Need these to drive interfaceState so we know when we are visible, if not nested in another range-managing element.
+// Because our superclass is a true UIKit class, we cannot also subclass _ASDisplayView.
+- (void)willMoveToWindow:(UIWindow *)newWindow
+{
+  BOOL visible = (newWindow != nil);
+  ASDisplayNode *node = self.tableNode;
+  if (visible && !node.inHierarchy) {
+    [node __enterHierarchy];
+  }
+}
+
+- (void)didMoveToWindow
+{
+  BOOL visible = (self.window != nil);
+  ASDisplayNode *node = self.tableNode;
+  if (!visible && node.inHierarchy) {
+    [node __exitHierarchy];
   }
 }
 

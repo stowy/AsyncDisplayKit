@@ -37,9 +37,9 @@
 
 @implementation ASTestTableView
 
-- (instancetype)initWithFrame:(CGRect)frame style:(UITableViewStyle)style asyncDataFetching:(BOOL)asyncDataFetchingEnabled
+- (instancetype)__initWithFrame:(CGRect)frame style:(UITableViewStyle)style
 {
-  return [super initWithFrame:frame style:style dataControllerClass:[ASTestDataController class] asyncDataFetching:asyncDataFetchingEnabled];
+  return [super _initWithFrame:frame style:style dataControllerClass:[ASTestDataController class] ownedByNode:NO];
 }
 
 - (ASTestDataController *)testDataController
@@ -52,7 +52,6 @@
   if (_willDeallocBlock) {
     _willDeallocBlock(self);
   }
-  [super dealloc];
 }
 
 @end
@@ -78,7 +77,6 @@
   if (_willDeallocBlock) {
     _willDeallocBlock(self);
   }
-  [super dealloc];
 }
 
 @end
@@ -126,13 +124,15 @@
 @end
 
 @interface ASTableViewTests : XCTestCase
+@property (atomic, retain) ASTableView *testTableView;
 @end
 
 @implementation ASTableViewTests
 
+// TODO: Convert this to ARC.
 - (void)DISABLED_testTableViewDoesNotRetainItselfAndDelegate
 {
-  ASTestTableView *tableView = [[ASTestTableView alloc] initWithFrame:CGRectZero style:UITableViewStylePlain];
+  ASTestTableView *tableView = [[ASTestTableView alloc] __initWithFrame:CGRectZero style:UITableViewStylePlain];
   
   __block BOOL tableViewDidDealloc = NO;
   tableView.willDeallocBlock = ^(ASTableView *v){
@@ -148,11 +148,11 @@
   
   tableView.asyncDataSource = delegate;
   tableView.asyncDelegate = delegate;
-  
-  [delegate release];
+
+//  [delegate release];
   XCTAssertTrue(delegateDidDealloc, @"unexpected delegate lifetime:%@", delegate);
   
-  XCTAssertNoThrow([tableView release], @"unexpected exception when deallocating table view:%@", tableView);
+//  XCTAssertNoThrow([tableView release], @"unexpected exception when deallocating table view:%@", tableView);
   XCTAssertTrue(tableViewDidDealloc, @"unexpected table view lifetime:%@", tableView);
 }
 
@@ -186,9 +186,8 @@
 - (void)testReloadData
 {
   // Keep the viewport moderately sized so that new cells are loaded on scrolling
-  ASTableView *tableView = [[ASTableView alloc] initWithFrame:CGRectMake(0, 0, 100, 500)
-                                                        style:UITableViewStylePlain
-                                            asyncDataFetching:YES];
+  ASTableView *tableView = [[ASTestTableView alloc] __initWithFrame:CGRectMake(0, 0, 100, 500)
+                                                              style:UITableViewStylePlain];
   
   ASTableViewFilledDataSource *dataSource = [ASTableViewFilledDataSource new];
   
@@ -251,9 +250,8 @@
   // Any subsequence size change must trigger a relayout.
   CGSize tableViewFinalSize = CGSizeMake(100, 500);
   // Width and height are swapped so that a later size change will simulate a rotation
-  ASTestTableView *tableView = [[ASTestTableView alloc] initWithFrame:CGRectMake(0, 0, tableViewFinalSize.height, tableViewFinalSize.width)
-                                                                style:UITableViewStylePlain
-                                                    asyncDataFetching:YES];
+  ASTestTableView *tableView = [[ASTestTableView alloc] __initWithFrame:CGRectMake(0, 0, tableViewFinalSize.height, tableViewFinalSize.width)
+                                                                style:UITableViewStylePlain];
   
   ASTableViewFilledDataSource *dataSource = [ASTableViewFilledDataSource new];
 
@@ -271,9 +269,8 @@
   // Initial width of the table view is 0. The first size change is part of the initial config.
   // Any subsequence size change after that must trigger a relayout.
   CGSize tableViewFinalSize = CGSizeMake(100, 500);
-  ASTestTableView *tableView = [[ASTestTableView alloc] initWithFrame:CGRectZero
-                                                                style:UITableViewStylePlain
-                                                    asyncDataFetching:YES];
+  ASTestTableView *tableView = [[ASTestTableView alloc] __initWithFrame:CGRectZero
+                                                                style:UITableViewStylePlain];
   ASTableViewFilledDataSource *dataSource = [ASTableViewFilledDataSource new];
 
   tableView.asyncDelegate = dataSource;
@@ -293,9 +290,8 @@
 - (void)testRelayoutVisibleRowsWhenEditingModeIsChanged
 {
   CGSize tableViewSize = CGSizeMake(100, 500);
-  ASTestTableView *tableView = [[ASTestTableView alloc] initWithFrame:CGRectMake(0, 0, tableViewSize.width, tableViewSize.height)
-                                                                style:UITableViewStylePlain
-                                                    asyncDataFetching:YES];
+  ASTestTableView *tableView = [[ASTestTableView alloc] __initWithFrame:CGRectMake(0, 0, tableViewSize.width, tableViewSize.height)
+                                                                style:UITableViewStylePlain];
   ASTableViewFilledDataSource *dataSource = [ASTableViewFilledDataSource new];
   
   tableView.asyncDelegate = dataSource;
@@ -362,9 +358,8 @@
 - (void)DISABLED_testRelayoutRowsAfterEditingModeIsChangedAndTheyBecomeVisible
 {
   CGSize tableViewSize = CGSizeMake(100, 500);
-  ASTestTableView *tableView = [[ASTestTableView alloc] initWithFrame:CGRectMake(0, 0, tableViewSize.width, tableViewSize.height)
-                                                                style:UITableViewStylePlain
-                                                    asyncDataFetching:YES];
+  ASTestTableView *tableView = [[ASTestTableView alloc] __initWithFrame:CGRectMake(0, 0, tableViewSize.width, tableViewSize.height)
+                                                                style:UITableViewStylePlain];
   ASTableViewFilledDataSource *dataSource = [ASTableViewFilledDataSource new];
   
   tableView.asyncDelegate = dataSource;
@@ -399,7 +394,7 @@
                                                                 style:UITableViewStylePlain
                                                     asyncDataFetching:YES];
   ASTableViewFilledDataSource *dataSource = [ASTableViewFilledDataSource new];
-  
+
   tableView.asyncDelegate = dataSource;
   tableView.asyncDataSource = dataSource;
   
@@ -412,6 +407,7 @@
         XCTAssertEqual(indexPath.row, reportedIndexPath.row);
       }
     }
+    self.testTableView = nil;
   }];
 }
 

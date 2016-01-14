@@ -10,8 +10,11 @@
 
 #import <AsyncDisplayKit/ASCellNode.h>
 #import <AsyncDisplayKit/ASDataController.h>
-#import <AsyncDisplayKit/ASFlowLayoutController.h>
 #import <AsyncDisplayKit/ASLayoutController.h>
+
+#define RangeControllerLoggingEnabled 0
+
+NS_ASSUME_NONNULL_BEGIN
 
 @protocol ASRangeControllerDataSource;
 @protocol ASRangeControllerDelegate;
@@ -25,6 +28,11 @@
  * This includes cancelling those asynchronous operations as cells fall outside of the working ranges.
  */
 @interface ASRangeController : ASDealloc2MainObject <ASDataControllerDelegate>
+{
+  id<ASLayoutController>                  _layoutController;
+  __weak id<ASRangeControllerDataSource>  _dataSource;
+  __weak id<ASRangeControllerDelegate>    _delegate;
+}
 
 /**
  * Notify the range controller that the visible range has been updated.
@@ -44,6 +52,9 @@
  * @param cellNode The cell node to be added.
  */
 - (void)configureContentView:(UIView *)contentView forCellNode:(ASCellNode *)node;
+
+- (void)setTuningParameters:(ASRangeTuningParameters)tuningParameters forRangeType:(ASLayoutRangeType)rangeType;
+- (ASRangeTuningParameters)tuningParametersForRangeType:(ASLayoutRangeType)rangeType;
 
 /**
  * An object that describes the layout behavior of the ranged component (table view, collection view, etc.)
@@ -65,6 +76,12 @@
 
 @end
 
+@interface ASRangeControllerStable : ASRangeController
+@end
+
+@interface ASRangeControllerBeta : ASRangeController
+@end
+
 /**
  * Data source for ASRangeController.
  *
@@ -78,7 +95,7 @@
  *
  * @returns an array of index paths corresponding to the nodes currently visible onscreen (i.e., the visible range).
  */
-- (NSArray *)visibleNodeIndexPathsForRangeController:(ASRangeController *)rangeController;
+- (NSArray<NSIndexPath *> *)visibleNodeIndexPathsForRangeController:(ASRangeController *)rangeController;
 
 /**
  * @param rangeController Sender.
@@ -88,13 +105,19 @@
 - (CGSize)viewportSizeForRangeController:(ASRangeController *)rangeController;
 
 /**
- * Fetch nodes at specific index paths.
- *
  * @param rangeController Sender.
  *
- * @param indexPaths Index paths.
+ * @returns the ASInterfaceState of the node that this controller is powering.  This allows nested range controllers
+ * to collaborate with one another, as an outer controller may set bits in .interfaceState such as Visible.
+ * If this controller is an orthogonally scrolling element, it waits until it is visible to preload outside the viewport.
  */
+- (ASInterfaceState)interfaceStateForRangeController:(ASRangeController *)rangeController;
+
 - (NSArray *)rangeController:(ASRangeController *)rangeController nodesAtIndexPaths:(NSArray *)indexPaths;
+
+- (ASDisplayNode *)rangeController:(ASRangeController *)rangeController nodeAtIndexPath:(NSIndexPath *)indexPath;
+
+- (NSArray<NSArray <ASCellNode *> *> *)completedNodes;
 
 @end
 
@@ -130,7 +153,7 @@
  *
  * @param animationOptions Animation options. See ASDataControllerAnimationOptions.
  */
-- (void)rangeController:(ASRangeController *)rangeController didInsertNodes:(NSArray *)nodes atIndexPaths:(NSArray *)indexPaths withAnimationOptions:(ASDataControllerAnimationOptions)animationOptions;
+- (void)rangeController:(ASRangeController *)rangeController didInsertNodes:(NSArray<ASCellNode *> *)nodes atIndexPaths:(NSArray<NSIndexPath *> *)indexPaths withAnimationOptions:(ASDataControllerAnimationOptions)animationOptions;
 
 /**
  * Called for nodes deletion.
@@ -143,7 +166,7 @@
  *
  * @param animationOptions Animation options. See ASDataControllerAnimationOptions.
  */
-- (void)rangeController:(ASRangeController *)rangeController didDeleteNodes:(NSArray *)nodes atIndexPaths:(NSArray *)indexPaths withAnimationOptions:(ASDataControllerAnimationOptions)animationOptions;
+- (void)rangeController:(ASRangeController *)rangeController didDeleteNodes:(NSArray<ASCellNode *> *)nodes atIndexPaths:(NSArray<NSIndexPath *> *)indexPaths withAnimationOptions:(ASDataControllerAnimationOptions)animationOptions;
 
 /**
  * Called for section insertion.
@@ -168,3 +191,5 @@
 - (void)rangeController:(ASRangeController *)rangeController didDeleteSectionsAtIndexSet:(NSIndexSet *)indexSet withAnimationOptions:(ASDataControllerAnimationOptions)animationOptions;
 
 @end
+
+NS_ASSUME_NONNULL_END

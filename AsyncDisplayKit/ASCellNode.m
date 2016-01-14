@@ -18,6 +18,15 @@
 #pragma mark -
 #pragma mark ASCellNode
 
+@interface ASCellNode ()
+{
+  ASDisplayNodeDidLoadBlock _nodeLoadedBlock;
+  UIViewController *_viewController;
+  ASDisplayNode *_viewControllerNode;
+}
+
+@end
+
 @implementation ASCellNode
 
 - (instancetype)init
@@ -25,11 +34,47 @@
   if (!(self = [super init]))
     return nil;
 
-  // use UITableViewCell defaults
+  // Use UITableViewCell defaults
   _selectionStyle = UITableViewCellSelectionStyleDefault;
   self.clipsToBounds = YES;
 
   return self;
+}
+
+- (instancetype)initWithViewControllerBlock:(ASDisplayNodeViewControllerBlock)viewControllerBlock didLoadBlock:(ASDisplayNodeDidLoadBlock)didLoadBlock
+{
+  if (!(self = [super init]))
+    return nil;
+  
+  ASDisplayNodeAssertNotNil(viewControllerBlock, @"should initialize with a valid block that returns a UIViewController");
+  
+  if (viewControllerBlock) {
+    _viewController = viewControllerBlock();
+    
+    __weak UIViewController *weakViewController = _viewController;
+    _viewControllerNode = [[ASDisplayNode alloc] initWithViewBlock:^UIView *{
+      return weakViewController.view;
+    } didLoadBlock:didLoadBlock];
+    
+    [self addSubnode:_viewControllerNode];
+    _nodeLoadedBlock = didLoadBlock;
+  }
+  
+  return self;
+}
+
+- (void)layout
+{
+  [super layout];
+  
+  _viewControllerNode.frame = self.bounds;
+}
+
+- (void)layoutDidFinish
+{
+  [super layoutDidFinish];
+
+  _viewControllerNode.frame = self.bounds;
 }
 
 - (instancetype)initWithLayerBlock:(ASDisplayNodeLayerBlock)viewBlock didLoadBlock:(ASDisplayNodeDidLoadBlock)didLoadBlock
@@ -53,11 +98,13 @@
 - (void)setNeedsLayout
 {
   ASDisplayNodeAssertThreadAffinity(self);  
+  CGSize oldSize = self.calculatedSize;
   [super setNeedsLayout];
-  
+
   if (_layoutDelegate != nil) {
+    BOOL sizeChanged = !CGSizeEqualToSize(oldSize, self.calculatedSize);
     ASPerformBlockOnMainThread(^{
-      [_layoutDelegate nodeDidRelayout:self];
+      [_layoutDelegate nodeDidRelayout:self sizeChanged:sizeChanged];
     });
   }
 }
@@ -96,7 +143,8 @@
 #pragma mark -
 #pragma mark ASTextCellNode
 
-@interface ASTextCellNode () {
+@interface ASTextCellNode ()
+{
   NSString *_text;
   ASTextNode *_textNode;
 }
@@ -112,7 +160,8 @@ static const CGFloat kFontSize = 18.0f;
 {
   if (!(self = [super init]))
     return nil;
-
+  
+  _text = @"";
   _textNode = [[ASTextNode alloc] init];
   [self addSubnode:_textNode];
 

@@ -6,13 +6,8 @@
  * of patent rights can be found in the PATENTS file in the same directory.
  */
 
-#import <AsyncDisplayKit/AsyncDisplayKit.h>
-
-typedef enum : NSUInteger {
-  ASButtonStateNormal,
-  ASButtonStateHighlighted,
-  ASButtonStateDisabled,
-} ASButtonState;
+#import <AsyncDisplayKit/ASTextNode.h>
+#import <AsyncDisplayKit/ASImageNode.h>
 
 @interface ASButtonNode : ASControlNode
 
@@ -31,10 +26,21 @@ typedef enum : NSUInteger {
  */
 @property (nonatomic, assign) BOOL laysOutHorizontally;
 
-- (NSAttributedString *)attributedTitleForState:(ASButtonState)state;
-- (void)setAttributedTitle:(NSAttributedString *)title forState:(ASButtonState)state;
+/** Horizontally align content (text or image).
+ Defaults to ASAlignmentMiddle.
+ */
+@property (nonatomic, assign) ASHorizontalAlignment contentHorizontalAlignment;
 
-- (UIImage *)imageForState:(ASButtonState)state;
-- (void)setImage:(UIImage *)image forState:(ASButtonState)state;
+/** Vertically align content (text or image).
+ Defaults to ASAlignmentCenter.
+ */
+@property (nonatomic, assign) ASVerticalAlignment contentVerticalAlignment;
+
+
+- (NSAttributedString *)attributedTitleForState:(ASControlState)state;
+- (void)setAttributedTitle:(NSAttributedString *)title forState:(ASControlState)state;
+
+- (UIImage *)imageForState:(ASControlState)state;
+- (void)setImage:(UIImage *)image forState:(ASControlState)state;
 
 @end

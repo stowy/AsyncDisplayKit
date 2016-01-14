@@ -9,7 +9,11 @@
 #import <Foundation/Foundation.h>
 
 typedef NS_ENUM(NSInteger, ASLayoutRangeType) {
-  ASLayoutRangeTypeRender,
-  ASLayoutRangeTypePreload,
+  ASLayoutRangeTypeVisible = 0,
+  ASLayoutRangeTypeDisplay,
+  ASLayoutRangeTypeFetchData,
   ASLayoutRangeTypeCount
 };
+
+#define ASLayoutRangeTypeRender ASLayoutRangeTypeDisplay
+#define ASLayoutRangeTypePreload ASLayoutRangeTypeFetchData

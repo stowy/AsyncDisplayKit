@@ -7,22 +7,21 @@
  */
 
 #import "ASRangeHandlerPreload.h"
-
 #import "ASDisplayNode.h"
-#import "ASDisplayNode+Subclasses.h"
+#import "ASDisplayNode+FrameworkPrivate.h"
 
 @implementation ASRangeHandlerPreload
 
 - (void)node:(ASDisplayNode *)node enteredRangeOfType:(ASLayoutRangeType)rangeType
 {
-  ASDisplayNodeAssert(rangeType == ASLayoutRangeTypePreload, @"Preload delegate should not handle other ranges");
-  [node recursivelyFetchData];
+  ASDisplayNodeAssert(rangeType == ASLayoutRangeTypeFetchData, @"Preload delegate should not handle other ranges");
+  [node enterInterfaceState:ASInterfaceStateFetchData];
 }
 
 - (void)node:(ASDisplayNode *)node exitedRangeOfType:(ASLayoutRangeType)rangeType
 {
-  ASDisplayNodeAssert(rangeType == ASLayoutRangeTypePreload, @"Preload delegate should not handle other ranges");
-  [node recursivelyClearFetchedData];
+  ASDisplayNodeAssert(rangeType == ASLayoutRangeTypeFetchData, @"Preload delegate should not handle other ranges");
+  [node exitInterfaceState:ASInterfaceStateFetchData];
 }
 
 @end

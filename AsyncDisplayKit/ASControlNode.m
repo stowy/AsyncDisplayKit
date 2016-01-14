@@ -46,7 +46,6 @@
 }
 
 // Read-write overrides.
-@property (nonatomic, readwrite, assign, getter=isHighlighted) BOOL highlighted;
 @property (nonatomic, readwrite, assign, getter=isTracking) BOOL tracking;
 @property (nonatomic, readwrite, assign, getter=isTouchInside) BOOL touchInside;
 
@@ -76,7 +75,6 @@ void _ASEnumerateControlEventsIncludedInMaskWithBlock(ASControlNodeEvent mask, v
   if (!(self = [super init]))
     return nil;
 
-  _controlEventDispatchTable = [[NSMutableDictionary alloc] initWithCapacity:kASControlNodeEventDispatchTableInitialCapacity]; // enough to handle common types without re-hashing the dictionary when adding entries.
   _enabled = YES;
 
   // As we have no targets yet, we start off with user interaction off. When a target is added, it'll get turned back on.
@@ -172,6 +170,14 @@ void _ASEnumerateControlEventsIncludedInMaskWithBlock(ASControlNodeEvent mask, v
   if (!self.enabled)
     return;
 
+  // On iPhone 6s, iOS 9.2 (and maybe other versions) sometimes calls -touchesEnded:withEvent:
+  // twice on the view for one call to -touchesBegan:withEvent:. On ASControlNode, it used to
+  // trigger an action twice unintentionally. Now, we ignore that event if we're not in a tracking
+  // state in order to have a correct behavior.
+  // It might be related to that issue: http://www.openradar.me/22910171
+  if (!self.tracking)
+    return;
+
   NSParameterAssert([touches count] == 1);
   UITouch *theTouch = [touches anyObject];
   CGPoint touchLocation = [theTouch locationInView:self.view];
@@ -214,6 +220,10 @@ void _ASEnumerateControlEventsIncludedInMaskWithBlock(ASControlNodeEvent mask, v
   // Convert nil to [NSNull null] so that it can be used as a key for NSMapTable.
   if (!target)
     target = [NSNull null];
+  
+  if (!_controlEventDispatchTable) {
+    _controlEventDispatchTable = [[NSMutableDictionary alloc] initWithCapacity:kASControlNodeEventDispatchTableInitialCapacity]; // enough to handle common types without re-hashing the dictionary when adding entries.
+  }
 
   // Enumerate the events in the mask, adding the target-action pair for each control event included in controlEventMask
   _ASEnumerateControlEventsIncludedInMaskWithBlock(controlEventMask, ^
@@ -336,7 +346,8 @@ void _ASEnumerateControlEventsIncludedInMaskWithBlock(ASControlNodeEvent mask, v
   _ASEnumerateControlEventsIncludedInMaskWithBlock(controlEvents, ^
     (ASControlNodeEvent controlEvent)
     {
-      NSMapTable *eventDispatchTable = [_controlEventDispatchTable objectForKey:_ASControlNodeEventKeyForControlEvent(controlEvent)];
+      // Use a copy to itereate, the action perform could call remove causing a mutation crash.
+      NSMapTable *eventDispatchTable = [[_controlEventDispatchTable objectForKey:_ASControlNodeEventKeyForControlEvent(controlEvent)] copy];
 
       // For each target interested in this event...
       for (id target in eventDispatchTable)

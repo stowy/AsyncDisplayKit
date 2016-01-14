@@ -8,8 +8,6 @@
  *
  */
 
-#import "ASStackLayoutSpec.h"
-
 #import <numeric>
 #import <vector>
 
@@ -19,7 +17,6 @@
 #import "ASLayoutSpecUtilities.h"
 #import "ASStackBaselinePositionedLayout.h"
 #import "ASStackLayoutSpecUtilities.h"
-#import "ASStackPositionedLayout.h"
 #import "ASStackUnpositionedLayout.h"
 #import "ASThread.h"
 
@@ -137,6 +134,10 @@
 
 - (ASLayout *)measureWithSizeRange:(ASSizeRange)constrainedSize
 {
+  if (self.children.count == 0) {
+    return [ASLayout layoutWithLayoutableObject:self size:constrainedSize.min];
+  }
+  
   ASStackLayoutSpecStyle style = {.direction = _direction, .spacing = _spacing, .justifyContent = _justifyContent, .alignItems = _alignItems, .baselineRelativeArrangement = _baselineRelativeArrangement};
   BOOL needsBaselinePass = _baselineRelativeArrangement || _alignItems == ASStackLayoutAlignItemsBaselineFirst || _alignItems == ASStackLayoutAlignItemsBaselineLast;
   

@@ -9,13 +9,23 @@
 #import "ASViewController.h"
 #import "ASAssert.h"
 #import "ASDimension.h"
-
-// FIXME: Temporary nonsense import until method names are finalized and exposed
-#import "ASDisplayNode+Subclasses.h"
+#import "ASDisplayNode+FrameworkPrivate.h"
 
 @implementation ASViewController
 {
   BOOL _ensureDisplayed;
+}
+
+- (instancetype)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil
+{
+  ASDisplayNodeAssert(NO, @"ASViewController requires using -initWithNode:");
+  return [self initWithNode:[[ASDisplayNode alloc] init]];
+}
+
+- (instancetype)initWithCoder:(NSCoder *)aDecoder
+{
+  ASDisplayNodeAssert(NO, @"ASViewController requires using -initWithNode:");
+  return [self initWithNode:[[ASDisplayNode alloc] init]];
 }
 
 - (instancetype)initWithNode:(ASDisplayNode *)node
@@ -47,7 +57,7 @@
 {
   if (_ensureDisplayed && self.neverShowPlaceholders) {
     _ensureDisplayed = NO;
-    [self.node recursivelyEnsureDisplay];
+    [self.node recursivelyEnsureDisplaySynchronously:YES];
   }
   [super viewDidLayoutSubviews];
 }
@@ -65,6 +75,11 @@
 {
   CGSize viewSize = self.view.bounds.size;
   return ASSizeRangeMake(viewSize, viewSize);
+}
+
+- (ASInterfaceState)interfaceState
+{
+  return _node.interfaceState;
 }
 
 @end

@@ -6,13 +6,21 @@
  * of patent rights can be found in the PATENTS file in the same directory.
  */
 
+#import <Foundation/Foundation.h>
 #import <CoreGraphics/CoreGraphics.h>
 
 #import "ASBaseDefines.h"
+#import "ASLayoutController.h"
+
+NS_ASSUME_NONNULL_BEGIN
 
 ASDISPLAYNODE_EXTERN_C_BEGIN
 
-CGRect asdk_CGRectExpandHorizontally(CGRect rect, CGFloat negativeMultiplier, CGFloat positiveMultiplier);
-CGRect asdk_CGRectExpandVertically(CGRect rect, CGFloat negativeMultiplier, CGFloat positiveMultiplier);
+CGRect CGRectExpandToRangeWithScrollableDirections(CGRect rect,
+                                                   ASRangeTuningParameters tuningParameters,
+                                                   ASScrollDirection scrollableDirections,
+                                                   ASScrollDirection scrollDirection);
 
 ASDISPLAYNODE_EXTERN_C_END
+
+NS_ASSUME_NONNULL_END

@@ -11,9 +11,14 @@
 #import <AsyncDisplayKit/ASDimension.h>
 
 @class ASCollectionView;
-@protocol ASCollectionViewDelegate;
+@protocol ASCollectionDelegate;
 
 @protocol ASCollectionViewLayoutInspecting <NSObject>
+
+/**
+ * Provides the size range needed to measure the collection view's item.
+ */
+- (ASSizeRange)collectionView:(ASCollectionView *)collectionView constrainedSizeForNodeAtIndexPath:(NSIndexPath *)indexPath;
 
 /**
  * Asks the inspector to provide a constrained size range for the given supplementary node.
@@ -30,12 +35,14 @@
  */
 - (NSUInteger)collectionView:(ASCollectionView *)collectionView supplementaryNodesOfKind:(NSString *)kind inSection:(NSUInteger)section;
 
+@optional
+
 /**
  * Allow the inspector to respond to delegate changes.
  *
  * @discussion A great time to update perform selector caches!
  */
-- (void)didChangeCollectionViewDelegate:(id<ASCollectionViewDelegate>)delegate;
+- (void)didChangeCollectionViewDelegate:(id<ASCollectionDelegate>)delegate;
 
 @end
 
