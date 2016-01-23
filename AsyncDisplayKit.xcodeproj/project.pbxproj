@@ -40,7 +40,7 @@
 		056D21551ABCEF50001107EF /* ASImageNodeSnapshotTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 056D21541ABCEF50001107EF /* ASImageNodeSnapshotTests.m */; };
 		0574D5E219C110940097DC25 /* ASTableViewProtocols.h in Headers */ = {isa = PBXBuildFile; fileRef = 0574D5E119C110610097DC25 /* ASTableViewProtocols.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		057D02C41AC0A66700C7AC3C /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 057D02C31AC0A66700C7AC3C /* main.m */; };
-		057D02C71AC0A66700C7AC3C /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 057D02C61AC0A66700C7AC3C /* AppDelegate.m */; };
+		057D02C71AC0A66700C7AC3C /* AppDelegate.mm in Sources */ = {isa = PBXBuildFile; fileRef = 057D02C61AC0A66700C7AC3C /* AppDelegate.mm */; };
 		0587F9BD1A7309ED00AFF0BA /* ASEditableTextNode.h in Headers */ = {isa = PBXBuildFile; fileRef = 0587F9BB1A7309ED00AFF0BA /* ASEditableTextNode.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		0587F9BE1A7309ED00AFF0BA /* ASEditableTextNode.mm in Sources */ = {isa = PBXBuildFile; fileRef = 0587F9BC1A7309ED00AFF0BA /* ASEditableTextNode.mm */; };
 		058D09B0195D04C000B7D73C /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 058D09AF195D04C000B7D73C /* Foundation.framework */; };
@@ -359,6 +359,10 @@
 		ACF6ED631B178DC700DA7C62 /* ASStackLayoutSpecSnapshotTests.mm in Sources */ = {isa = PBXBuildFile; fileRef = ACF6ED5B1B178DC700DA7C62 /* ASStackLayoutSpecSnapshotTests.mm */; };
 		B0F8805A1BEAEC7500D17647 /* ASTableNode.h in Headers */ = {isa = PBXBuildFile; fileRef = B0F880581BEAEC7500D17647 /* ASTableNode.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		B0F8805B1BEAEC7500D17647 /* ASTableNode.m in Sources */ = {isa = PBXBuildFile; fileRef = B0F880591BEAEC7500D17647 /* ASTableNode.m */; };
+		B13CA0F71C519E9400E031AB /* ASCollectionViewLayoutFacilitatorProtocol.h in Headers */ = {isa = PBXBuildFile; fileRef = B13CA0F61C519E9400E031AB /* ASCollectionViewLayoutFacilitatorProtocol.h */; };
+		B13CA0F81C519EBA00E031AB /* ASCollectionViewLayoutFacilitatorProtocol.h in Headers */ = {isa = PBXBuildFile; fileRef = B13CA0F61C519E9400E031AB /* ASCollectionViewLayoutFacilitatorProtocol.h */; };
+		B13CA1001C52004900E031AB /* ASCollectionNode+Beta.h in Headers */ = {isa = PBXBuildFile; fileRef = B13CA0FF1C52004900E031AB /* ASCollectionNode+Beta.h */; };
+		B13CA1011C52004900E031AB /* ASCollectionNode+Beta.h in Headers */ = {isa = PBXBuildFile; fileRef = B13CA0FF1C52004900E031AB /* ASCollectionNode+Beta.h */; };
 		B35061F31B010EFD0018CF92 /* ASCellNode.h in Headers */ = {isa = PBXBuildFile; fileRef = 055F1A3A19ABD43F004DAFF1 /* ASCellNode.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		B35061F51B010EFD0018CF92 /* ASCollectionView.h in Headers */ = {isa = PBXBuildFile; fileRef = AC3C4A4F1A1139C100143C57 /* ASCollectionView.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		B35061F61B010EFD0018CF92 /* ASCollectionView.mm in Sources */ = {isa = PBXBuildFile; fileRef = AC3C4A501A1139C100143C57 /* ASCollectionView.mm */; };
@@ -497,6 +501,13 @@
 			remoteGlobalIDString = 058D09AB195D04C000B7D73C;
 			remoteInfo = AsyncDisplayKit;
 		};
+		DEACA2B11C425DC400FA9DDF /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 058D09A4195D04C000B7D73C /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 058D09AB195D04C000B7D73C;
+			remoteInfo = AsyncDisplayKit;
+		};
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -541,7 +552,7 @@
 		057D02C21AC0A66700C7AC3C /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		057D02C31AC0A66700C7AC3C /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		057D02C51AC0A66700C7AC3C /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
-		057D02C61AC0A66700C7AC3C /* AppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AppDelegate.m; sourceTree = "<group>"; };
+		057D02C61AC0A66700C7AC3C /* AppDelegate.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = AppDelegate.mm; sourceTree = "<group>"; };
 		0587F9BB1A7309ED00AFF0BA /* ASEditableTextNode.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ASEditableTextNode.h; sourceTree = "<group>"; };
 		0587F9BC1A7309ED00AFF0BA /* ASEditableTextNode.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; lineEnding = 0; path = ASEditableTextNode.mm; sourceTree = "<group>"; };
 		058D09AC195D04C000B7D73C /* libAsyncDisplayKit.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libAsyncDisplayKit.a; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -762,6 +773,8 @@
 		ACF6ED5B1B178DC700DA7C62 /* ASStackLayoutSpecSnapshotTests.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = ASStackLayoutSpecSnapshotTests.mm; sourceTree = "<group>"; };
 		B0F880581BEAEC7500D17647 /* ASTableNode.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ASTableNode.h; sourceTree = "<group>"; };
 		B0F880591BEAEC7500D17647 /* ASTableNode.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ASTableNode.m; sourceTree = "<group>"; };
+		B13CA0F61C519E9400E031AB /* ASCollectionViewLayoutFacilitatorProtocol.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ASCollectionViewLayoutFacilitatorProtocol.h; sourceTree = "<group>"; };
+		B13CA0FF1C52004900E031AB /* ASCollectionNode+Beta.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "ASCollectionNode+Beta.h"; sourceTree = "<group>"; };
 		B35061DA1B010EDF0018CF92 /* AsyncDisplayKit.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = AsyncDisplayKit.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		B35061DD1B010EDF0018CF92 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; name = Info.plist; path = "../AsyncDisplayKit-iOS/Info.plist"; sourceTree = "<group>"; };
 		CC7FD9DC1BB5E962005CCB2B /* ASPhotosFrameworkImageRequest.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ASPhotosFrameworkImageRequest.h; sourceTree = "<group>"; };
@@ -837,7 +850,7 @@
 			children = (
 				204C979D1B362CB3002B1083 /* Default-568h@2x.png */,
 				057D02C51AC0A66700C7AC3C /* AppDelegate.h */,
-				057D02C61AC0A66700C7AC3C /* AppDelegate.m */,
+				057D02C61AC0A66700C7AC3C /* AppDelegate.mm */,
 				057D02C11AC0A66700C7AC3C /* Supporting Files */,
 			);
 			name = AsyncDisplayKitTestHost;
@@ -902,9 +915,11 @@
 				AC6456071B0A335000CF11B8 /* ASCellNode.m */,
 				18C2ED7C1B9B7DE800F627B3 /* ASCollectionNode.h */,
 				18C2ED7D1B9B7DE800F627B3 /* ASCollectionNode.mm */,
+				B13CA0FF1C52004900E031AB /* ASCollectionNode+Beta.h */,
 				AC3C4A4F1A1139C100143C57 /* ASCollectionView.h */,
 				AC3C4A501A1139C100143C57 /* ASCollectionView.mm */,
 				AC3C4A531A113EEC00143C57 /* ASCollectionViewProtocols.h */,
+				B13CA0F61C519E9400E031AB /* ASCollectionViewLayoutFacilitatorProtocol.h */,
 				DEC146B41C37A16A004A0EE7 /* ASCollectionInternal.h */,
 				DEC146B51C37A16A004A0EE7 /* ASCollectionInternal.m */,
 				058D09D5195D050800B7D73C /* ASControlNode.h */,
@@ -1276,6 +1291,7 @@
 				7A06A73B1C35F08800FE8DAA /* ASRelativePositionLayoutSpec.h in Headers */,
 				058D0A53195D05DC00B7D73C /* _ASDisplayLayer.h in Headers */,
 				058D0A55195D05DC00B7D73C /* _ASDisplayView.h in Headers */,
+				B13CA0F71C519E9400E031AB /* ASCollectionViewLayoutFacilitatorProtocol.h in Headers */,
 				058D0A74195D05F800B7D73C /* _ASPendingState.h in Headers */,
 				9C5586691BD549CB00B50E3A /* ASAsciiArtBoxCreator.h in Headers */,
 				058D0A76195D05F900B7D73C /* _ASScopeTimer.h in Headers */,
@@ -1346,6 +1362,7 @@
 				AC026B6F1BD57DBF00BBC17E /* _ASHierarchyChangeSet.h in Headers */,
 				0516FA3D1A15563400B4EBED /* ASLog.h in Headers */,
 				257754AA1BEE44CD00737CA5 /* ASTextKitEntityAttribute.h in Headers */,
+				B13CA1001C52004900E031AB /* ASCollectionNode+Beta.h in Headers */,
 				0442850D1BAA64EC00D16268 /* ASMultidimensionalArrayUtils.h in Headers */,
 				0516FA401A1563D200B4EBED /* ASMultiplexImageNode.h in Headers */,
 				058D0A59195D05DC00B7D73C /* ASMutableAttributedStringBuilder.h in Headers */,
@@ -1400,6 +1417,7 @@
 				B350623C1B010EFD0018CF92 /* _ASAsyncTransaction.h in Headers */,
 				B350623E1B010EFD0018CF92 /* _ASAsyncTransactionContainer+Private.h in Headers */,
 				B350623F1B010EFD0018CF92 /* _ASAsyncTransactionContainer.h in Headers */,
+				B13CA1011C52004900E031AB /* ASCollectionNode+Beta.h in Headers */,
 				DECC2ECE1C35C1C600388446 /* ASRangeControllerBeta.h in Headers */,
 				254C6B7E1BF94DF4003EC431 /* ASTextKitTailTruncater.h in Headers */,
 				B35062411B010EFD0018CF92 /* _ASAsyncTransactionGroup.h in Headers */,
@@ -1474,6 +1492,7 @@
 				B35062041B010EFD0018CF92 /* ASMultiplexImageNode.h in Headers */,
 				DECBD6E81BE56E1900CF4905 /* ASButtonNode.h in Headers */,
 				B35062241B010EFD0018CF92 /* ASMutableAttributedStringBuilder.h in Headers */,
+				B13CA0F81C519EBA00E031AB /* ASCollectionViewLayoutFacilitatorProtocol.h in Headers */,
 				B35062061B010EFD0018CF92 /* ASNetworkImageNode.h in Headers */,
 				34EFC76C1B701CED00AD841F /* ASOverlayLayoutSpec.h in Headers */,
 				B35062261B010EFD0018CF92 /* ASRangeController.h in Headers */,
@@ -1531,6 +1550,7 @@
 			buildRules = (
 			);
 			dependencies = (
+				DEACA2B21C425DC400FA9DDF /* PBXTargetDependency */,
 			);
 			name = AsyncDisplayKitTestHost;
 			productName = AsyncDisplayKitTestHost;
@@ -1716,7 +1736,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				057D02C71AC0A66700C7AC3C /* AppDelegate.m in Sources */,
+				057D02C71AC0A66700C7AC3C /* AppDelegate.mm in Sources */,
 				057D02C41AC0A66700C7AC3C /* main.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -1963,6 +1983,11 @@
 			target = 058D09AB195D04C000B7D73C /* AsyncDisplayKit */;
 			targetProxy = 058D09C2195D04C000B7D73C /* PBXContainerItemProxy */;
 		};
+		DEACA2B21C425DC400FA9DDF /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 058D09AB195D04C000B7D73C /* AsyncDisplayKit */;
+			targetProxy = DEACA2B11C425DC400FA9DDF /* PBXContainerItemProxy */;
+		};
 /* End PBXTargetDependency section */
 
 /* Begin PBXVariantGroup section */
@@ -1990,7 +2015,7 @@
 					"$(inherited)",
 				);
 				INFOPLIST_FILE = AsyncDisplayKitTestHost/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 7.1;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				MTL_ENABLE_DEBUG_INFO = YES;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -2007,7 +2032,7 @@
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				GCC_INSTRUMENT_PROGRAM_FLOW_ARCS = NO;
 				INFOPLIST_FILE = AsyncDisplayKitTestHost/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 7.1;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				MTL_ENABLE_DEBUG_INFO = NO;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -2020,6 +2045,7 @@
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
 				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_CODE_COVERAGE = NO;
 				CLANG_ENABLE_MODULES = YES;
 				CLANG_ENABLE_OBJC_ARC = YES;
 				CLANG_WARN_BOOL_CONVERSION = YES;
@@ -2060,6 +2086,7 @@
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
 				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_CODE_COVERAGE = NO;
 				CLANG_ENABLE_MODULES = YES;
 				CLANG_ENABLE_OBJC_ARC = YES;
 				CLANG_WARN_BOOL_CONVERSION = YES;
@@ -2099,6 +2126,7 @@
 				GCC_PREFIX_HEADER = "AsyncDisplayKit/AsyncDisplayKit-Prefix.pch";
 				GCC_TREAT_WARNINGS_AS_ERRORS = YES;
 				GCC_WARN_INITIALIZER_NOT_FULLY_BRACKETED = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 7.1;
 				OTHER_CFLAGS = "-Wall";
 				OTHER_LDFLAGS = "-ObjC";
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -2119,6 +2147,7 @@
 				GCC_PREFIX_HEADER = "AsyncDisplayKit/AsyncDisplayKit-Prefix.pch";
 				GCC_TREAT_WARNINGS_AS_ERRORS = YES;
 				GCC_WARN_INITIALIZER_NOT_FULLY_BRACKETED = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 7.1;
 				OTHER_CFLAGS = "-Wall";
 				OTHER_LDFLAGS = "-ObjC";
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -2132,6 +2161,7 @@
 			baseConfigurationReference = FB07EABBCF28656C6297BC2D /* Pods-AsyncDisplayKitTests.debug.xcconfig */;
 			buildSettings = {
 				BUNDLE_LOADER = "$(TEST_HOST)";
+				CLANG_ENABLE_CODE_COVERAGE = YES;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(SDKROOT)/Developer/Library/Frameworks",
 					"$(inherited)",
@@ -2149,6 +2179,7 @@
 				GCC_TREAT_WARNINGS_AS_ERRORS = YES;
 				GCC_WARN_INITIALIZER_NOT_FULLY_BRACKETED = YES;
 				INFOPLIST_FILE = "AsyncDisplayKitTests/AsyncDisplayKitTests-Info.plist";
+				IPHONEOS_DEPLOYMENT_TARGET = 7.1;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/AsyncDisplayKitTestHost.app/AsyncDisplayKitTestHost";
 				WRAPPER_EXTENSION = xctest;
@@ -2160,6 +2191,7 @@
 			baseConfigurationReference = D3779BCFF841AD3EB56537ED /* Pods-AsyncDisplayKitTests.release.xcconfig */;
 			buildSettings = {
 				BUNDLE_LOADER = "$(TEST_HOST)";
+				CLANG_ENABLE_CODE_COVERAGE = YES;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(SDKROOT)/Developer/Library/Frameworks",
 					"$(inherited)",
@@ -2176,6 +2208,7 @@
 				GCC_TREAT_WARNINGS_AS_ERRORS = YES;
 				GCC_WARN_INITIALIZER_NOT_FULLY_BRACKETED = YES;
 				INFOPLIST_FILE = "AsyncDisplayKitTests/AsyncDisplayKitTests-Info.plist";
+				IPHONEOS_DEPLOYMENT_TARGET = 7.1;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/AsyncDisplayKitTestHost.app/AsyncDisplayKitTestHost";
 				WRAPPER_EXTENSION = xctest;
@@ -2185,6 +2218,7 @@
 		B35061EE1B010EDF0018CF92 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CLANG_ENABLE_CODE_COVERAGE = YES;
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				CURRENT_PROJECT_VERSION = 1;
@@ -2217,6 +2251,7 @@
 		B35061EF1B010EDF0018CF92 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CLANG_ENABLE_CODE_COVERAGE = YES;
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				COPY_PHASE_STRIP = NO;

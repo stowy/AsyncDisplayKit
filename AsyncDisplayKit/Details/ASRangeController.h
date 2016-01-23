@@ -117,6 +117,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (ASDisplayNode *)rangeController:(ASRangeController *)rangeController nodeAtIndexPath:(NSIndexPath *)indexPath;
 
+- (NSArray<NSArray <ASCellNode *> *> *)completedNodes;
+
 @end
 
 /**
@@ -187,6 +189,13 @@ NS_ASSUME_NONNULL_BEGIN
  * @param animationOptions Animation options. See ASDataControllerAnimationOptions.
  */
 - (void)rangeController:(ASRangeController *)rangeController didDeleteSectionsAtIndexSet:(NSIndexSet *)indexSet withAnimationOptions:(ASDataControllerAnimationOptions)animationOptions;
+
+/**
+ * Called for data reload.
+ *
+ * @param rangeController Sender.
+ */
+- (void)rangeControllerDidReloadData:(ASRangeController *)rangeController;
 
 @end
 

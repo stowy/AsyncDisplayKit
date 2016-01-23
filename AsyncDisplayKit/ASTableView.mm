@@ -34,7 +34,7 @@ static NSString * const kCellReuseIdentifier = @"_ASTableViewCell";
 @class _ASTableViewCell;
 
 @protocol _ASTableViewCellDelegate <NSObject>
-- (void)willLayoutSubviewsOfTableViewCell:(_ASTableViewCell *)tableViewCell;
+- (void)didLayoutSubviewsOfTableViewCell:(_ASTableViewCell *)tableViewCell;
 @end
 
 @interface _ASTableViewCell : UITableViewCell
@@ -47,8 +47,8 @@ static NSString * const kCellReuseIdentifier = @"_ASTableViewCell";
 
 - (void)layoutSubviews
 {
-  [_delegate willLayoutSubviewsOfTableViewCell:self];
   [super layoutSubviews];
+  [_delegate didLayoutSubviewsOfTableViewCell:self];
 }
 
 - (void)didTransitionToState:(UITableViewCellStateMask)state
@@ -198,14 +198,17 @@ static NSString * const kCellReuseIdentifier = @"_ASTableViewCell";
   }
   
   if (!dataControllerClass) {
-    dataControllerClass = [self.class dataControllerClass];
+    dataControllerClass = [[self class] dataControllerClass];
   }
   
   [self configureWithDataControllerClass:dataControllerClass];
   
   if (!ownedByNode) {
     // See commentary at the definition of .strongTableNode for why we create an ASTableNode.
-    ASTableNode *tableNode = [[ASTableNode alloc] _initWithTableView:self];
+    // FIXME: The _view pointer of the node retains us, but the node will die immediately if we don't
+    // retain it.  At the moment there isn't a great solution to this, so we can't yet move our core
+    // logic to ASTableNode (required to have a shared superclass with ASCollection*).
+    ASTableNode *tableNode = nil; //[[ASTableNode alloc] _initWithTableView:self];
     self.strongTableNode = tableNode;
   }
   
@@ -295,10 +298,7 @@ static NSString * const kCellReuseIdentifier = @"_ASTableViewCell";
 
 - (void)reloadDataWithCompletion:(void (^)())completion
 {
-  ASPerformBlockOnMainThread(^{
-    [super reloadData];
-  });
-  [_dataController reloadDataWithAnimationOptions:UITableViewRowAnimationNone completion:completion];
+  [_dataController reloadDataWithCompletion:completion];
 }
 
 - (void)reloadData
@@ -309,8 +309,7 @@ static NSString * const kCellReuseIdentifier = @"_ASTableViewCell";
 - (void)reloadDataImmediately
 {
   ASDisplayNodeAssertMainThread();
-  [_dataController reloadDataImmediatelyWithAnimationOptions:UITableViewRowAnimationNone];
-  [super reloadData];
+  [_dataController reloadDataImmediately];
 }
 
 - (void)setTuningParameters:(ASRangeTuningParameters)tuningParameters forRangeType:(ASLayoutRangeType)rangeType
@@ -331,6 +330,11 @@ static NSString * const kCellReuseIdentifier = @"_ASTableViewCell";
 - (void)setRangeTuningParameters:(ASRangeTuningParameters)tuningParameters
 {
   [self setTuningParameters:tuningParameters forRangeType:ASLayoutRangeTypeDisplay];
+}
+
+- (NSArray<NSArray <ASCellNode *> *> *)completedNodes
+{
+  return [_dataController completedNodes];
 }
 
 - (ASCellNode *)nodeForRowAtIndexPath:(NSIndexPath *)indexPath
@@ -590,9 +594,18 @@ static NSString * const kCellReuseIdentifier = @"_ASTableViewCell";
 
   [_rangeController visibleNodeIndexPathsDidChangeWithScrollDirection:self.scrollDirection];
 
+  if ([_asyncDelegate respondsToSelector:@selector(tableView:didEndDisplayingNode:forRowAtIndexPath:)]) {
+    ASCellNode *node = ((_ASTableViewCell *)cell).node;
+    ASDisplayNodeAssertNotNil(node, @"Expected node associated with removed cell not to be nil.");
+    [_asyncDelegate tableView:self didEndDisplayingNode:node forRowAtIndexPath:indexPath];
+  }
+
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
   if ([_asyncDelegate respondsToSelector:@selector(tableView:didEndDisplayingNodeForRowAtIndexPath:)]) {
     [_asyncDelegate tableView:self didEndDisplayingNodeForRowAtIndexPath:indexPath];
   }
+#pragma clang diagnostic pop
 }
 
 
@@ -705,7 +718,15 @@ static NSString * const kCellReuseIdentifier = @"_ASTableViewCell";
 
 - (ASInterfaceState)interfaceStateForRangeController:(ASRangeController *)rangeController
 {
-  return self.tableNode.interfaceState;
+  ASTableNode *tableNode = self.tableNode;
+  if (tableNode) {
+    return self.tableNode.interfaceState;
+  } else {
+    // Until we can always create an associated ASTableNode without a retain cycle,
+    // we might be on our own to try to guess if we're visible.  The node normally
+    // handles this even if it is the root / directly added to the view hierarchy.
+    return (self.window != nil ? ASInterfaceStateVisible : ASInterfaceStateNone);
+  }
 }
 
 #pragma mark - ASRangeControllerDelegate
@@ -820,6 +841,18 @@ static NSString * const kCellReuseIdentifier = @"_ASTableViewCell";
   });
 }
 
+- (void)rangeControllerDidReloadData:(ASRangeController *)rangeController
+{
+  ASDisplayNodeAssertMainThread();
+  LOG(@"UITableView reloadData");
+  
+  if (!self.asyncDataSource) {
+    return; // if the asyncDataSource has become invalid while we are processing, ignore this request to avoid crashes
+  }
+
+  [super reloadData];
+}
+
 #pragma mark - ASDataControllerDelegate
 
 - (ASCellNode *)dataController:(ASDataController *)dataController nodeAtIndexPath:(NSIndexPath *)indexPath
@@ -878,7 +911,7 @@ static NSString * const kCellReuseIdentifier = @"_ASTableViewCell";
 
 #pragma mark - _ASTableViewCellDelegate
 
-- (void)willLayoutSubviewsOfTableViewCell:(_ASTableViewCell *)tableViewCell
+- (void)didLayoutSubviewsOfTableViewCell:(_ASTableViewCell *)tableViewCell
 {
   CGFloat contentViewWidth = tableViewCell.contentView.bounds.size.width;
   ASCellNode *node = tableViewCell.node;

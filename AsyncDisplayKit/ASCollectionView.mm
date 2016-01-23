@@ -13,6 +13,7 @@
 #import "ASCollectionDataController.h"
 #import "ASCollectionViewLayoutController.h"
 #import "ASCollectionViewFlowLayoutInspector.h"
+#import "ASCollectionViewLayoutFacilitatorProtocol.h"
 #import "ASDisplayNode+FrameworkPrivate.h"
 #import "ASDisplayNode+Beta.h"
 #import "ASInternalHelpers.h"
@@ -67,6 +68,8 @@ static NSString * const kCellReuseIdentifier = @"_ASCollectionViewCell";
   ASRangeController *_rangeController;
   ASCollectionViewLayoutController *_layoutController;
   ASCollectionViewFlowLayoutInspector *_flowLayoutInspector;
+    
+  id<ASCollectionViewLayoutFacilitatorProtocol> _layoutFacilitator;
   
   BOOL _performingBatchUpdates;
   NSMutableArray *_batchUpdateBlocks;
@@ -145,12 +148,20 @@ static NSString * const kCellReuseIdentifier = @"_ASCollectionViewCell";
 
 - (instancetype)_initWithFrame:(CGRect)frame collectionViewLayout:(UICollectionViewLayout *)layout ownedByNode:(BOOL)ownedByNode
 {
+  return [self _initWithFrame:frame collectionViewLayout:layout layoutFacilitator:nil ownedByNode:ownedByNode];
+}
+
+- (instancetype)_initWithFrame:(CGRect)frame collectionViewLayout:(UICollectionViewLayout *)layout layoutFacilitator:(id<ASCollectionViewLayoutFacilitatorProtocol>)layoutFacilitator ownedByNode:(BOOL)ownedByNode
+{
   if (!(self = [super initWithFrame:frame collectionViewLayout:layout]))
     return nil;
   
   if (!ownedByNode) {
     // See commentary at the definition of .strongCollectionNode for why we create an ASCollectionNode.
-    ASCollectionNode *collectionNode = [[ASCollectionNode alloc] _initWithCollectionView:self];
+    // FIXME: The _view pointer of the node retains us, but the node will die immediately if we don't
+    // retain it.  At the moment there isn't a great solution to this, so we can't yet move our core
+    // logic to ASCollectionNode (required to have a shared superclass with ASTable*).
+    ASCollectionNode *collectionNode = nil; //[[ASCollectionNode alloc] _initWithCollectionView:self];
     self.strongCollectionNode = collectionNode;
   }
   
@@ -192,6 +203,7 @@ static NSString * const kCellReuseIdentifier = @"_ASCollectionViewCell";
   if ([layout asdk_isFlowLayout]) {
     _layoutInspector = [self flowLayoutInspector];
   }
+  _layoutFacilitator = layoutFacilitator;
   
   _proxyDelegate = [[ASCollectionViewProxy alloc] initWithTarget:nil interceptor:self];
   super.delegate = (id<UICollectionViewDelegate>)_proxyDelegate;
@@ -238,7 +250,7 @@ static NSString * const kCellReuseIdentifier = @"_ASCollectionViewCell";
     _superIsPendingDataLoad = YES;
     [super reloadData];
   });
-  [_dataController reloadDataWithAnimationOptions:kASCollectionViewAnimationNone completion:completion];
+  [_dataController reloadDataWithCompletion:completion];
 }
 
 - (void)reloadData
@@ -249,7 +261,8 @@ static NSString * const kCellReuseIdentifier = @"_ASCollectionViewCell";
 - (void)reloadDataImmediately
 {
   ASDisplayNodeAssertMainThread();
-  [_dataController reloadDataImmediatelyWithAnimationOptions:kASCollectionViewAnimationNone];
+  _superIsPendingDataLoad = YES;
+  [_dataController reloadDataImmediately];
   [super reloadData];
 }
 
@@ -347,6 +360,11 @@ static NSString * const kCellReuseIdentifier = @"_ASCollectionViewCell";
 - (CGSize)calculatedSizeForNodeAtIndexPath:(NSIndexPath *)indexPath
 {
   return [[_dataController nodeAtIndexPath:indexPath] calculatedSize];
+}
+
+- (NSArray<NSArray <ASCellNode *> *> *)completedNodes
+{
+  return [_dataController completedNodes];
 }
 
 - (ASCellNode *)nodeForItemAtIndexPath:(NSIndexPath *)indexPath
@@ -562,10 +580,18 @@ static NSString * const kCellReuseIdentifier = @"_ASCollectionViewCell";
 - (void)collectionView:(UICollectionView *)collectionView didEndDisplayingCell:(UICollectionViewCell *)cell forItemAtIndexPath:(NSIndexPath *)indexPath
 {
   [_rangeController visibleNodeIndexPathsDidChangeWithScrollDirection:self.scrollDirection];
-  
+
+  if ([_asyncDelegate respondsToSelector:@selector(collectionView:didEndDisplayingNode:forItemAtIndexPath:)]) {
+    ASCellNode *node = ((_ASCollectionViewCell *)cell).node;
+    ASDisplayNodeAssertNotNil(node, @"Expected node associated with removed cell not to be nil.");
+    [_asyncDelegate collectionView:self didEndDisplayingNode:node forItemAtIndexPath:indexPath];
+  }
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
   if ([_asyncDelegate respondsToSelector:@selector(collectionView:didEndDisplayingNodeForItemAtIndexPath:)]) {
     [_asyncDelegate collectionView:self didEndDisplayingNodeForItemAtIndexPath:indexPath];
   }
+#pragma clang diagnostic pop
 }
 
 - (void)layoutSubviews
@@ -784,7 +810,15 @@ static NSString * const kCellReuseIdentifier = @"_ASCollectionViewCell";
 
 - (ASInterfaceState)interfaceStateForRangeController:(ASRangeController *)rangeController
 {
-  return self.collectionNode.interfaceState;
+  ASCollectionNode *collectionNode = self.collectionNode;
+  if (collectionNode) {
+    return self.collectionNode.interfaceState;
+  } else {
+    // Until we can always create an associated ASCollectionNode without a retain cycle,
+    // we might be on our own to try to guess if we're visible.  The node normally
+    // handles this even if it is the root / directly added to the view hierarchy.
+    return (self.window != nil ? ASInterfaceStateVisible : ASInterfaceStateNone);
+  }
 }
 
 - (NSArray *)rangeController:(ASRangeController *)rangeController nodesAtIndexPaths:(NSArray *)indexPaths
@@ -808,7 +842,7 @@ static NSString * const kCellReuseIdentifier = @"_ASCollectionViewCell";
 - (void)rangeController:(ASRangeController *)rangeController didEndUpdatesAnimated:(BOOL)animated completion:(void (^)(BOOL))completion
 {
   ASDisplayNodeAssertMainThread();
-  
+
   if (!self.asyncDataSource || _superIsPendingDataLoad) {
     if (completion) {
       completion(NO);
@@ -831,7 +865,7 @@ static NSString * const kCellReuseIdentifier = @"_ASCollectionViewCell";
 - (void)rangeController:(ASRangeController *)rangeController didInsertNodes:(NSArray *)nodes atIndexPaths:(NSArray *)indexPaths withAnimationOptions:(ASDataControllerAnimationOptions)animationOptions
 {
   ASDisplayNodeAssertMainThread();
-  
+  [_layoutFacilitator collectionViewEditingCellsAtIndexPaths:indexPaths];
   if (!self.asyncDataSource || _superIsPendingDataLoad) {
     return; // if the asyncDataSource has become invalid while we are processing, ignore this request to avoid crashes
   }
@@ -850,7 +884,7 @@ static NSString * const kCellReuseIdentifier = @"_ASCollectionViewCell";
 - (void)rangeController:(ASRangeController *)rangeController didDeleteNodes:(NSArray *)nodes atIndexPaths:(NSArray *)indexPaths withAnimationOptions:(ASDataControllerAnimationOptions)animationOptions
 {
   ASDisplayNodeAssertMainThread();
-  
+  [_layoutFacilitator collectionViewEditingCellsAtIndexPaths:indexPaths];
   if (!self.asyncDataSource || _superIsPendingDataLoad) {
     return; // if the asyncDataSource has become invalid while we are processing, ignore this request to avoid crashes
   }
@@ -869,7 +903,7 @@ static NSString * const kCellReuseIdentifier = @"_ASCollectionViewCell";
 - (void)rangeController:(ASRangeController *)rangeController didInsertSectionsAtIndexSet:(NSIndexSet *)indexSet withAnimationOptions:(ASDataControllerAnimationOptions)animationOptions
 {
   ASDisplayNodeAssertMainThread();
-  
+  [_layoutFacilitator collectionViewEditingSectionsAtIndexSet:indexSet];
   if (!self.asyncDataSource || _superIsPendingDataLoad) {
     return; // if the asyncDataSource has become invalid while we are processing, ignore this request to avoid crashes
   }
@@ -888,7 +922,7 @@ static NSString * const kCellReuseIdentifier = @"_ASCollectionViewCell";
 - (void)rangeController:(ASRangeController *)rangeController didDeleteSectionsAtIndexSet:(NSIndexSet *)indexSet withAnimationOptions:(ASDataControllerAnimationOptions)animationOptions
 {
   ASDisplayNodeAssertMainThread();
-  
+  [_layoutFacilitator collectionViewEditingSectionsAtIndexSet:indexSet];
   if (!self.asyncDataSource || _superIsPendingDataLoad) {
     return; // if the asyncDataSource has become invalid while we are processing, ignore this request to avoid crashes
   }
@@ -900,6 +934,25 @@ static NSString * const kCellReuseIdentifier = @"_ASCollectionViewCell";
   } else {
     [UIView performWithoutAnimation:^{
       [super deleteSections:indexSet];
+    }];
+  }
+}
+
+- (void)rangeControllerDidReloadData:(ASRangeController *)rangeController
+{
+  ASDisplayNodeAssertMainThread();
+  
+  if (!self.asyncDataSource || _superIsPendingDataLoad) {
+    return; // if the asyncDataSource has become invalid while we are processing, ignore this request to avoid crashes
+  }
+  
+  if (_performingBatchUpdates) {
+    [_batchUpdateBlocks addObject:^{
+      [super reloadData];
+    }];
+  } else {
+    [UIView performWithoutAnimation:^{
+      [super reloadData];
     }];
   }
 }
