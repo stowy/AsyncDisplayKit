@@ -1,3 +1,4 @@
+
 //
 //  CollectionViewController.m
 //  Sample
@@ -139,6 +140,13 @@ static NSString * const reuseIdentifier = @"Cell";
   cell.itemView.viewModel = viewModel;
   
   return cell;
+}
+
+- (UICollectionReusableView *)collectionView:(UICollectionView *)collectionView viewForSupplementaryElementOfKind:(NSString *)kind atIndexPath:(NSIndexPath *)indexPath {
+  if (indexPath.section == 0 && [kind isEqualToString:UICollectionElementKindSectionFooter]) {
+    return [collectionView dequeueReusableSupplementaryViewOfKind:kind withReuseIdentifier:[LoadingView reuseIdentifier] forIndexPath:indexPath];
+  }
+  return nil;
 }
 
 
