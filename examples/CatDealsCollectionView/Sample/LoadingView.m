@@ -46,6 +46,10 @@ static CGFloat kFixedHeight = 200.0f;
   return self;
 }
 
+- (instancetype)init {
+  return [self initWithNib];
+}
+
 -(void)awakeFromNib {
   
 }

@@ -14,8 +14,6 @@
 #import "CollectionViewController.h"
 #import "ViewController.h"
 
-static const BOOL kUseAutoLayout = YES;
-
 @implementation AppDelegate
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
@@ -33,17 +31,35 @@ static const BOOL kUseAutoLayout = YES;
 
 - (void)pushNewViewControllerAnimated:(BOOL)animated
 {
-  UINavigationController *navController = (UINavigationController *)self.window.rootViewController;
+  UIViewController *viewController = [[ViewController alloc] init];
+  [self pushViewController:viewController animated:animated];
+}
 
-  UIViewController *viewController = kUseAutoLayout ? [[CollectionViewController alloc] init] : [[ViewController alloc] init];
-  viewController.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithTitle:@"Push Another Copy" style:UIBarButtonItemStylePlain target:self action:@selector(pushNewViewController)];
-
-  [navController pushViewController:viewController animated:animated];
+- (void)pushNewUIKitViewControllerAnimated:(BOOL)animated
+{
+  UIViewController *viewController = [[CollectionViewController alloc] init];
+  [self pushViewController:viewController animated:animated];
 }
 
 - (void)pushNewViewController
 {
   [self pushNewViewControllerAnimated:YES];
 }
+
+- (void)pushNewUIKitViewController
+{
+  [self pushNewUIKitViewControllerAnimated:YES];
+}
+
+- (void)pushViewController:(UIViewController *)viewController animated:(BOOL)animated {
+  UINavigationController *navController = (UINavigationController *)self.window.rootViewController;
+  UIBarButtonItem *asdkPush = [[UIBarButtonItem alloc] initWithTitle:@"Push ASDK" style:UIBarButtonItemStylePlain target:self action:@selector(pushNewViewController)];
+    UIBarButtonItem *uiKitPush = [[UIBarButtonItem alloc] initWithTitle:@"Push UIKit" style:UIBarButtonItemStylePlain target:self action:@selector(pushNewUIKitViewController)];
+  
+  viewController.navigationItem.rightBarButtonItems = @[asdkPush, uiKitPush];
+  
+  [navController pushViewController:viewController animated:animated];
+}
+
 
 @end

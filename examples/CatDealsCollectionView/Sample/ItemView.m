@@ -11,6 +11,7 @@
 
 #import "ItemView.h"
 #import <AsyncDisplayKit/AsyncDisplayKit.h>
+#import "ItemStyles.h"
 
 static const NSString *kItemViewNibName = @"ItemView";
 
@@ -76,7 +77,7 @@ const CGFloat kItemDesignHeight = 299.0;
 - (void)setup {
 
 
-  self.placeholderImage = nil;
+  self.placeholderImage = [ItemStyles placeholderImage];
     [self.imageView setImage:self.placeholderImage];
 
 
@@ -185,7 +186,7 @@ const CGFloat kItemDesignHeight = 299.0;
   }
   self.imageDownloadIdentifier = nil;
   self.currentImageURL = nil;
-  self.imageView.image = nil;
+  self.imageView.image = self.placeholderImage;
   self.titleLabel.text = nil;
   self.firstInfoLabel.text = nil;
   self.secondInfoLabel.text = nil;

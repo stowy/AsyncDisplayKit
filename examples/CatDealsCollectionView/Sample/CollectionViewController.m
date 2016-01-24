@@ -37,8 +37,7 @@ static NSString * const reuseIdentifier = @"Cell";
     [self.collectionView registerClass:[ItemViewCell class] forCellWithReuseIdentifier:reuseIdentifier];
     self.collectionView.backgroundColor = [UIColor groupTableViewBackgroundColor];
   
-  UINib *nib = [UINib nibWithNibName:@"LoadingView" bundle:nil];
-  [self.collectionView registerNib:nib forSupplementaryViewOfKind:UICollectionElementKindSectionFooter withReuseIdentifier:[LoadingView reuseIdentifier]];
+  [self.collectionView registerClass:[LoadingView class] forSupplementaryViewOfKind:UICollectionElementKindSectionFooter withReuseIdentifier:[LoadingView reuseIdentifier]];
   
     // Do any additional setup after loading the view.
   
@@ -52,7 +51,7 @@ static NSString * const reuseIdentifier = @"Cell";
   
   if (self) {
     
-    self.title = @"Cat Deals";
+    self.title = @"Cat Deals with UIKit";
     _data = [[NSMutableArray alloc] init];
     
     self.navigationItem.leftItemsSupplementBackButton = YES;

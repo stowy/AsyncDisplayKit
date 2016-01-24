@@ -43,7 +43,7 @@ static const CGFloat kVerticalSectionPadding = 20.0f;
   
   if (self) {
     
-    self.title = @"Cat Deals";
+    self.title = @"Cat Deals with ASDK";
     
     UICollectionViewFlowLayout *layout = [[UICollectionViewFlowLayout alloc] init];
     
