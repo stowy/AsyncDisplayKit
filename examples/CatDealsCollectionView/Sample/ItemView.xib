@@ -3,7 +3,6 @@
     <dependencies>
         <deployment identifier="iOS"/>
         <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="9529"/>
-        <capability name="Constraints with non-1.0 multipliers" minToolsVersion="5.1"/>
     </dependencies>
     <customFonts key="customFonts">
         <mutableArray key="OpenSans-Bold.ttf">
@@ -17,9 +16,6 @@
             <rect key="frame" x="0.0" y="0.0" width="329" height="296"/>
             <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
             <subviews>
-                <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="MQH-55-SPL" userLabel="Placeholder Image View">
-                    <rect key="frame" x="0.0" y="0.0" width="329" height="190"/>
-                </imageView>
                 <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="eDA-LV-wEt" customClass="UILabel">
                     <rect key="frame" x="0.0" y="156" width="0.0" height="34"/>
                     <constraints>
@@ -166,21 +162,15 @@
             <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="calibratedWhite"/>
             <constraints>
                 <constraint firstItem="2wo-u9-zqI" firstAttribute="leading" secondItem="iN0-l3-epB" secondAttribute="leading" id="2Yf-aD-aBG"/>
-                <constraint firstItem="2wo-u9-zqI" firstAttribute="top" secondItem="MQH-55-SPL" secondAttribute="bottom" constant="10" id="7HL-HO-pdv"/>
                 <constraint firstItem="eDA-LV-wEt" firstAttribute="leading" secondItem="iN0-l3-epB" secondAttribute="leading" id="7nN-ZB-IrM"/>
                 <constraint firstItem="eDA-LV-wEt" firstAttribute="bottom" secondItem="VOw-Ia-MOs" secondAttribute="bottom" id="Fdn-PB-dmU"/>
                 <constraint firstItem="CVe-oe-ifD" firstAttribute="top" secondItem="iN0-l3-epB" secondAttribute="top" id="GhL-aa-caN"/>
                 <constraint firstItem="2wo-u9-zqI" firstAttribute="top" secondItem="VOw-Ia-MOs" secondAttribute="bottom" constant="10" id="HRf-fa-rPw"/>
                 <constraint firstItem="VOw-Ia-MOs" firstAttribute="leading" secondItem="iN0-l3-epB" secondAttribute="leading" id="Mdq-K7-o97"/>
                 <constraint firstAttribute="bottom" secondItem="CVe-oe-ifD" secondAttribute="bottom" id="Wnh-S4-LDa"/>
-                <constraint firstItem="MQH-55-SPL" firstAttribute="top" secondItem="iN0-l3-epB" secondAttribute="top" id="XnB-dp-w3T"/>
-                <constraint firstAttribute="trailing" secondItem="MQH-55-SPL" secondAttribute="trailing" id="XuW-3r-wmK"/>
                 <constraint firstAttribute="bottom" secondItem="2wo-u9-zqI" secondAttribute="bottom" id="YL2-D0-aBm"/>
-                <constraint firstItem="eDA-LV-wEt" firstAttribute="bottom" secondItem="MQH-55-SPL" secondAttribute="bottom" id="a16-tf-DC3"/>
-                <constraint firstItem="MQH-55-SPL" firstAttribute="leading" secondItem="iN0-l3-epB" secondAttribute="leading" id="cKu-AQ-HN8"/>
                 <constraint firstAttribute="trailing" secondItem="CVe-oe-ifD" secondAttribute="trailing" id="cau-z4-go2"/>
                 <constraint firstItem="CVe-oe-ifD" firstAttribute="leading" secondItem="iN0-l3-epB" secondAttribute="leading" id="dOA-St-Hg7"/>
-                <constraint firstItem="eDA-LV-wEt" firstAttribute="width" relation="lessThanOrEqual" secondItem="MQH-55-SPL" secondAttribute="width" multiplier="0.75" id="k5c-cq-BiL"/>
                 <constraint firstAttribute="trailing" secondItem="VOw-Ia-MOs" secondAttribute="trailing" id="ki1-38-aA7"/>
                 <constraint firstAttribute="trailing" secondItem="2wo-u9-zqI" secondAttribute="trailing" id="l06-8f-4Gf"/>
                 <constraint firstItem="VOw-Ia-MOs" firstAttribute="top" secondItem="iN0-l3-epB" secondAttribute="top" id="s4c-Cv-dIf"/>
