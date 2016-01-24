@@ -41,8 +41,6 @@ static NSString * const reuseIdentifier = @"Cell";
   [self.collectionView registerClass:[LoadingView class] forSupplementaryViewOfKind:UICollectionElementKindSectionFooter withReuseIdentifier:[LoadingView reuseIdentifier]];
   
     // Do any additional setup after loading the view.
-  
-    [self fetchMoreCatsWithCompletion:nil];
 }
 
 

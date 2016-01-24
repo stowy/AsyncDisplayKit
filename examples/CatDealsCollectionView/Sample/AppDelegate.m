@@ -11,6 +11,8 @@
 
 #import "AppDelegate.h"
 
+#import <AsyncDisplayKit/AsyncDisplayKit.h>
+#import <AsyncDisplayKit/ASDisplayNode+Beta.h>
 #import "CollectionViewController.h"
 #import "ViewController.h"
 
@@ -21,6 +23,7 @@
   self.window = [[UIWindow alloc] initWithFrame:[[UIScreen mainScreen] bounds]];
   self.window.backgroundColor = [UIColor whiteColor];
   self.window.rootViewController = [[UINavigationController alloc] init];
+  [ASDisplayNode setShouldUseNewRenderingRange:YES];
   
   [self pushNewViewControllerAnimated:NO];
   

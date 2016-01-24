@@ -233,7 +233,7 @@ static const CGFloat kVerticalSectionPadding = 20.0f;
 }
 
 - (UIEdgeInsets)collectionView:(ASCollectionView *)collectionView layout:(UICollectionViewLayout *)collectionViewLayout insetForSectionAtIndex:(NSInteger)section {
-  return UIEdgeInsetsMake(kVerticalSectionPadding, kHorizontalSectionPadding, kVerticalSectionPadding, kHorizontalSectionPadding);
+  return UIEdgeInsetsMake(0, kHorizontalSectionPadding, 0, kHorizontalSectionPadding);
 }
 
 -(void)dealloc

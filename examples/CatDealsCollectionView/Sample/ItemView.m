@@ -80,8 +80,7 @@ const CGFloat kItemDesignHeight = 299.0;
 
 
 - (void)setup {
-
-
+  
   self.placeholderImage = [ItemStyles placeholderImage];
   self.imageView.image = self.placeholderImage;
 
@@ -95,6 +94,9 @@ const CGFloat kItemDesignHeight = 299.0;
         self.finalPriceLabel.textAlignment = NSTextAlignmentLeft;
     }
 
+  self.titleLabel.font = [ItemStyles titleStyle][NSFontAttributeName];
+  self.titleLabel.textColor = [ItemStyles titleStyle][NSForegroundColorAttributeName];
+  
     UIColor *white = [UIColor whiteColor];
 
     self.titleLabel.backgroundColor = white;
@@ -121,9 +123,8 @@ const CGFloat kItemDesignHeight = 299.0;
   self.badgeView.hidden = self.viewModel.badgeText == nil;
   
   // Set Title text
-  if (self.viewModel.titleText) {
-    self.titleLabel.attributedText = [[NSAttributedString alloc] initWithString:self.viewModel.titleText attributes:[ItemStyles titleStyle]];
-  }
+  self.titleLabel.text = self.viewModel.titleText;
+  
   if (self.viewModel.firstInfoText) {
     self.firstInfoLabel.attributedText = [[NSAttributedString alloc] initWithString:self.viewModel.firstInfoText attributes:[ItemStyles subtitleStyle]];
   }
