@@ -9,22 +9,20 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-#import <Foundation/Foundation.h>
 #import <UIKit/UIKit.h>
+#import "ItemViewModel.h"
 
-@interface ItemViewModel : NSObject
+extern const CGFloat kItemDesignWidth;
+extern const CGFloat kItemDesignHeight;
 
-+ (instancetype)randomItem;
+@interface ItemView : UIView
 
-@property (nonatomic, copy) NSString *titleText;
-@property (nonatomic, copy) NSString *firstInfoText;
-@property (nonatomic, copy) NSString *secondInfoText;
-@property (nonatomic, copy) NSString *originalPriceText;
-@property (nonatomic, copy) NSString *finalPriceText;
-@property (nonatomic, copy) NSString *soldOutText;
-@property (nonatomic, copy) NSString *distanceLabelText;
-@property (nonatomic, copy) NSString *badgeText;
+// Redefining concrete view model class
+@property (nonatomic, strong) ItemViewModel *viewModel;
 
-- (NSURL *)imageURLWithSize:(CGSize)size;
+- (void)prepareForReuse;
++ (CGSize)preferredViewSize;
++ (CGSize)sizeForWidth:(CGFloat)width;
++ (CGFloat)scaledHeightForPreferredSize:(CGSize)preferredSize scaledWidth:(CGFloat)scaledWidth;
 
 @end

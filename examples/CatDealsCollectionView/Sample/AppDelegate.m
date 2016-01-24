@@ -11,8 +11,10 @@
 
 #import "AppDelegate.h"
 
-#import "PresentingViewController.h"
+#import "CollectionViewController.h"
 #import "ViewController.h"
+
+static const BOOL kUseAutoLayout = YES;
 
 @implementation AppDelegate
 
@@ -33,13 +35,9 @@
 {
   UINavigationController *navController = (UINavigationController *)self.window.rootViewController;
 
-#if SIMULATE_WEB_RESPONSE
-  UIViewController *viewController = [[PresentingViewController alloc] init];
-#else
-  UIViewController *viewController = [[ViewController alloc] init];
+  UIViewController *viewController = kUseAutoLayout ? [[CollectionViewController alloc] init] : [[ViewController alloc] init];
   viewController.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithTitle:@"Push Another Copy" style:UIBarButtonItemStylePlain target:self action:@selector(pushNewViewController)];
-#endif
-  
+
   [navController pushViewController:viewController animated:animated];
 }
 
