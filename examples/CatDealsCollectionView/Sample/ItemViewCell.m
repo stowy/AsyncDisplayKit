@@ -32,4 +32,8 @@
   [self.itemView prepareForReuse];
 }
 
+- (CGSize)systemLayoutSizeFittingSize:(CGSize)targetSize withHorizontalFittingPriority:(UILayoutPriority)horizontalFittingPriority verticalFittingPriority:(UILayoutPriority)verticalFittingPriority {
+  return targetSize;
+}
+
 @end

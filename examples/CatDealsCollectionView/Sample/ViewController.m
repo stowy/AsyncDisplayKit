@@ -50,7 +50,7 @@ static const CGFloat kVerticalSectionPadding = 20.0f;
     _collectionView = [[ASCollectionView alloc] initWithFrame:CGRectZero collectionViewLayout:layout];
     _collectionView.asyncDataSource = self;
     _collectionView.asyncDelegate = self;
-    _collectionView.backgroundColor = [UIColor grayColor];
+    _collectionView.backgroundColor = [UIColor groupTableViewBackgroundColor];
     _collectionView.leadingScreensForBatching = 2;
     
     ASRangeTuningParameters fetchDataTuning;

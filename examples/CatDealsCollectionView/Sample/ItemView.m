@@ -74,49 +74,26 @@ const CGFloat kItemDesignHeight = 299.0;
   [self setup];
 }
 
++ (BOOL)isRTL {
+  return [UIApplication sharedApplication].userInterfaceLayoutDirection == UIUserInterfaceLayoutDirectionRightToLeft;
+}
+
+
 - (void)setup {
 
 
   self.placeholderImage = [ItemStyles placeholderImage];
-    [self.imageView setImage:self.placeholderImage];
+  self.imageView.image = self.placeholderImage;
 
-
-    // Title Label
-
-//    [self.titleLabel setFont:[fonts titleFont]];
-
-//
-//    // First Subtitle
-//    [self.firstInfoLabel setFont:[fonts infoFont]];
-
-//
-//    // Distance Label
-//    [self.distanceLabel setFont:[fonts infoFont]];
-
-//
-//    // Second Subtitle
-//    [self.secondInfoLabel setFont:[fonts infoFont]];
-
-//
-//    // Original price
-//    [self.originalPriceLabel setFont:[fonts originalPriceFont:nil]];
-
-//
-//    // Discounted / Claimable price label
-//    [self.finalPriceLabel setFont:[fonts finalPriceFont:nil]];
-//
-//    // Setup Sold Out Label
-//    self.soldOutLabelFlat.font = [fonts soldOutFont];
-//
 //    // Support RTL
-//    if ([CountryManager sharedInstance].isRTL) {
-//        self.titleLabel.textAlignment = NSTextAlignmentNatural;
-//        self.firstInfoLabel.textAlignment = NSTextAlignmentRight;
-//        self.distanceLabel.textAlignment = NSTextAlignmentRight;
-//        self.secondInfoLabel.textAlignment = NSTextAlignmentRight;
-//        self.originalPriceLabel.textAlignment = NSTextAlignmentLeft;
-//        self.finalPriceLabel.textAlignment = NSTextAlignmentLeft;
-//    }
+    if ([ItemView isRTL]) {
+        self.titleLabel.textAlignment = NSTextAlignmentNatural;
+        self.firstInfoLabel.textAlignment = NSTextAlignmentRight;
+        self.distanceLabel.textAlignment = NSTextAlignmentRight;
+        self.secondInfoLabel.textAlignment = NSTextAlignmentRight;
+        self.originalPriceLabel.textAlignment = NSTextAlignmentLeft;
+        self.finalPriceLabel.textAlignment = NSTextAlignmentLeft;
+    }
 
     UIColor *white = [UIColor whiteColor];
 
@@ -143,6 +120,37 @@ const CGFloat kItemDesignHeight = 299.0;
   
   self.badgeView.hidden = self.viewModel.badgeText == nil;
   
+  // Set Title text
+  if (self.viewModel.titleText) {
+    self.titleLabel.attributedText = [[NSAttributedString alloc] initWithString:self.viewModel.titleText attributes:[ItemStyles titleStyle]];
+  }
+  if (self.viewModel.firstInfoText) {
+    self.firstInfoLabel.attributedText = [[NSAttributedString alloc] initWithString:self.viewModel.firstInfoText attributes:[ItemStyles subtitleStyle]];
+  }
+  
+  if (self.viewModel.secondInfoText) {
+    self.secondInfoLabel.attributedText = [[NSAttributedString alloc] initWithString:self.viewModel.secondInfoText attributes:[ItemStyles secondInfoStyle]];
+  }
+  if (self.viewModel.originalPriceText) {
+    self.originalPriceLabel.attributedText = [[NSAttributedString alloc] initWithString:self.viewModel.originalPriceText attributes:[ItemStyles originalPriceStyle]];
+  }
+  if (self.viewModel.finalPriceText) {
+    self.finalPriceLabel.attributedText = [[NSAttributedString alloc] initWithString:self.viewModel.finalPriceText attributes:[ItemStyles finalPriceStyle]];
+  }
+  if (self.viewModel.distanceLabelText) {
+    NSString *format = [ItemView isRTL] ? @"%@ •" : @"• %@";
+    NSString *distanceText = [NSString stringWithFormat:format, self.viewModel.distanceLabelText];
+    
+    self.distanceLabel.attributedText = [[NSAttributedString alloc] initWithString:distanceText attributes:[ItemStyles distanceStyle]];
+  }
+  
+  BOOL hasBadge = self.viewModel.badgeText != nil;
+  if (hasBadge) {
+    self.badgeView.attributedText = [[NSAttributedString alloc] initWithString:self.viewModel.badgeText attributes:[ItemStyles badgeStyle]];
+    self.badgeView.backgroundColor = [ItemStyles badgeColor];
+  }
+  self.badgeView.hidden = !hasBadge;
+  
 }
 
 
@@ -150,7 +158,8 @@ const CGFloat kItemDesignHeight = 299.0;
     BOOL isSoldOut = self.viewModel.soldOutText != nil;
 
     if (isSoldOut) {
-        self.soldOutLabelFlat.text = self.viewModel.soldOutText;
+      NSString *soldOutText = self.viewModel.soldOutText;
+      self.soldOutLabelFlat.attributedText = [[NSAttributedString alloc] initWithString:soldOutText attributes:[ItemStyles soldOutStyle]];
     }
     self.soldOutOverlay.hidden = !isSoldOut;
 }

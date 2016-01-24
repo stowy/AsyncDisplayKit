@@ -54,6 +54,8 @@ static NSString * const reuseIdentifier = @"Cell";
     
     self.title = @"Cat Deals with UIKit";
     _data = [[NSMutableArray alloc] init];
+    UICollectionViewFlowLayout *layout = (UICollectionViewFlowLayout *)self.collectionViewLayout;
+    layout.sectionInset = UIEdgeInsetsMake(kVerticalSectionPadding, kHorizontalSectionPadding, kVerticalSectionPadding, kHorizontalSectionPadding);
     
     self.navigationItem.leftItemsSupplementBackButton = YES;
     self.navigationItem.leftBarButtonItem = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemRefresh target:self action:@selector(reloadTapped)];
@@ -158,11 +160,6 @@ static NSString * const reuseIdentifier = @"Cell";
 - (NSInteger)numberOfSectionsInCollectionView:(UICollectionView *)collectionView
 {
   return 1;
-}
-
-
-- (CGFloat)collectionView:(UICollectionView *)collectionView layout:(UICollectionViewLayout *)collectionViewLayout minimumInteritemSpacingForSectionAtIndex:(NSInteger)section {
-  return kHorizontalSectionPadding;
 }
 
 - (CGSize)collectionView:(UICollectionView *)collectionView layout:(UICollectionViewLayout *)collectionViewLayout referenceSizeForFooterInSection:(NSInteger)section {
