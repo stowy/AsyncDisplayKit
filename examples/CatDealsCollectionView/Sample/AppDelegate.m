@@ -15,17 +15,35 @@
 #import <AsyncDisplayKit/ASDisplayNode+Beta.h>
 #import "CollectionViewController.h"
 #import "ViewController.h"
+#import "ItemStyles.h"
+
+@interface AppDelegate()
+
+@property (nonatomic, strong) UINavigationController *leftNav;
+@property (nonatomic, strong) UINavigationController *rightNav;
+
+@end
 
 @implementation AppDelegate
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
 {  
-  self.window = [[UIWindow alloc] initWithFrame:[[UIScreen mainScreen] bounds]];
-  self.window.backgroundColor = [UIColor whiteColor];
-  self.window.rootViewController = [[UINavigationController alloc] init];
   [ASDisplayNode setShouldUseNewRenderingRange:YES];
   
+  self.window = [[UIWindow alloc] initWithFrame:[[UIScreen mainScreen] bounds]];
+  self.window.backgroundColor = [UIColor whiteColor];
+  self.leftNav = [[UINavigationController alloc] init];
+  self.rightNav = [[UINavigationController alloc] init];
+  
+  
+  self.leftNav.tabBarItem = [[UITabBarItem alloc] initWithTitle:@"ASDK" image:nil tag:0];
+  self.rightNav.tabBarItem = [[UITabBarItem alloc] initWithTitle:@"UIKit" image:nil tag:0];
+  
+  self.window.rootViewController = [[UITabBarController alloc] init];
+  [(UITabBarController *)self.window.rootViewController setViewControllers:@[self.leftNav, self.rightNav]];
+  
   [self pushNewViewControllerAnimated:NO];
+  [self pushNewUIKitViewControllerAnimated:NO];
   
   [self.window makeKeyAndVisible];
   
@@ -35,13 +53,19 @@
 - (void)pushNewViewControllerAnimated:(BOOL)animated
 {
   UIViewController *viewController = [[ViewController alloc] init];
-  [self pushViewController:viewController animated:animated];
+  UIBarButtonItem *asdkPush = [[UIBarButtonItem alloc] initWithTitle:@"Push ASDK" style:UIBarButtonItemStylePlain target:self action:@selector(pushNewViewController)];
+  
+  viewController.navigationItem.rightBarButtonItems = @[asdkPush];
+  [self.leftNav pushViewController:viewController animated:animated];
 }
 
 - (void)pushNewUIKitViewControllerAnimated:(BOOL)animated
 {
   UIViewController *viewController = [[CollectionViewController alloc] init];
-  [self pushViewController:viewController animated:animated];
+  UIBarButtonItem *uiKitPush = [[UIBarButtonItem alloc] initWithTitle:@"Push UIKit" style:UIBarButtonItemStylePlain target:self action:@selector(pushNewUIKitViewController)];
+  
+  viewController.navigationItem.rightBarButtonItems = @[uiKitPush];
+  [self.rightNav pushViewController:viewController animated:animated];
 }
 
 - (void)pushNewViewController
@@ -54,15 +78,6 @@
   [self pushNewUIKitViewControllerAnimated:YES];
 }
 
-- (void)pushViewController:(UIViewController *)viewController animated:(BOOL)animated {
-  UINavigationController *navController = (UINavigationController *)self.window.rootViewController;
-  UIBarButtonItem *asdkPush = [[UIBarButtonItem alloc] initWithTitle:@"Push ASDK" style:UIBarButtonItemStylePlain target:self action:@selector(pushNewViewController)];
-    UIBarButtonItem *uiKitPush = [[UIBarButtonItem alloc] initWithTitle:@"Push UIKit" style:UIBarButtonItemStylePlain target:self action:@selector(pushNewUIKitViewController)];
-  
-  viewController.navigationItem.rightBarButtonItems = @[asdkPush, uiKitPush];
-  
-  [navController pushViewController:viewController animated:animated];
-}
 
 
 @end
