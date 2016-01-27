@@ -11,6 +11,7 @@
 
 #import "ItemView.h"
 #import <AsyncDisplayKit/AsyncDisplayKit.h>
+#import <SDWebImage/UIImageView+WebCache.h>
 #import "ItemStyles.h"
 
 static const NSString *kItemViewNibName = @"ItemView";
@@ -32,9 +33,6 @@ const CGFloat kItemDesignHeight = 299.0;
 @property (nonatomic, strong) IBOutlet UILabel *finalPriceLabel;
 @property (nonatomic, strong) IBOutlet UILabel *soldOutLabelFlat;
 @property (nonatomic, strong) IBOutlet UIView *soldOutOverlay;
-
-@property (nonatomic, strong) id imageDownloadIdentifier;
-@property (nonatomic, strong) NSURL *currentImageURL;
 
 @end
 
@@ -191,11 +189,6 @@ const CGFloat kItemDesignHeight = 299.0;
 
 - (void)prepareForReuse {
   self.viewModel = nil;
-  if (self.imageDownloadIdentifier) {
-    [[ASBasicImageDownloader sharedImageDownloader] cancelImageDownloadForIdentifier:self.imageDownloadIdentifier];
-  }
-  self.imageDownloadIdentifier = nil;
-  self.currentImageURL = nil;
   self.imageView.image = self.placeholderImage;
   self.titleLabel.text = nil;
   self.firstInfoLabel.text = nil;
@@ -231,15 +224,8 @@ const CGFloat kItemDesignHeight = 299.0;
   CGSize imageSize = self.imageView.frame.size;
   NSURL *url = [self.viewModel imageURLWithSize:imageSize];
   // TODO: load url.
-  if (![self.currentImageURL isEqual:url]) {
-    if (self.imageDownloadIdentifier) {
-      [[ASBasicImageDownloader sharedImageDownloader] cancelImageDownloadForIdentifier:self.imageDownloadIdentifier];
-    }
-    self.currentImageURL = url;
-    self.imageDownloadIdentifier = [[ASBasicImageDownloader sharedImageDownloader] downloadImageWithURL:url callbackQueue:dispatch_get_main_queue() downloadProgressBlock:nil completion:^(CGImageRef  _Nullable image, NSError * _Nullable error) {
-      UIImage *myImage = [UIImage imageWithCGImage:image];
-      self.imageView.image = myImage;
-    }];
+  if (![self.imageView.sd_imageURL isEqual:url]) {
+    [self.imageView sd_setImageWithURL:url placeholderImage:self.placeholderImage];
   }
   
 }
